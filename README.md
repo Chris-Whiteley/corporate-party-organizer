@@ -21,10 +21,10 @@ The development process followed an Agile-like methodology by breaking the proje
 
 Each task was committed to version control with meaningful, descriptive commit messages.
 
-User Stories:
-As an organizer, I want to add guests to the guest list so that I can manage who is invited.
+### User Stories
+As an organiser, I want to add guests to the guest list so that I can manage who is invited.
 As a guest, I want to be able to arrive at a party with extra friends, so I can join if there is space.
-As an organizer, I want to see how many seats are available, so I can plan the event.
+As an organiser, I want to see how many seats are available, so I can plan the event.
 
 ## How to Run the Project
 ### Prerequisites
@@ -42,3 +42,9 @@ mvn spring-boot:run
 ## Assumptions
 
 - **Table Management**: The system includes table management, allowing for the dynamic creation and adjustment of tables and their seating capacities.
+- **Table id**: Tables are identified with a positive integer number
+
+## Future Improvements
+
+- **Guest Name**: Is this enough to identify a guest?  Could get duplication using just their name.
+- **Can only do one party**: Currently Can only set up one party.  What if you want to organise more than one. Perhaps have ability to set up more than one party and specify the location (venue).  Then tables would be for a particular venue.  A party would have a date and a venue.  Also perhaps have the ability to create invites.  This would make the application more complicated and the table primary keys would change.
