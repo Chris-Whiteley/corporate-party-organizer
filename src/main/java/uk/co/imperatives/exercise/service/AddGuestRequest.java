@@ -14,4 +14,8 @@ public class AddGuestRequest {
     public boolean hasTable() {
         return table > 0;
     }
+
+    public int noOfGuests() {
+        return accompanyingGuests + 1;
+    }
 }

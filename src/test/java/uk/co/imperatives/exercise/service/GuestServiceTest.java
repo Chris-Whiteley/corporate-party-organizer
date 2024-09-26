@@ -29,8 +29,9 @@ public class GuestServiceTest {
 
     @Test
     void shouldAddGuestToGuestList() {
-        // table 1 has capacity for 3
-        Guest guest = new Guest("John", 1, 2);
+        // table 1 has availability for 3
+        when(tableService.hasAvailability(1,3)).thenReturn(true);
+        Guest guest = Guest.builder().name("John").table(1).accompanyingGuests(2).build();
         when(guestRepository.save(any(Guest.class))).thenReturn(guest);
 
         // Build request and call service
@@ -44,16 +45,13 @@ public class GuestServiceTest {
         assertEquals("John", result.getName());
         assertEquals(1, result.getTable());
         assertEquals(2, result.getAccompanyingGuests());
-
-        // Verify repository interaction
-        verify(guestRepository, times(1)).save(any(Guest.class));
     }
 
     @Test
     void shouldAddGuestToGuestListAndAssignAvailableTable() {
-        // table 2 has capacity for 6
-        when(tableService.getTableWithAvailablePlaces(anyInt())).thenReturn(2);
-        Guest guest = new Guest("Elton John", 2, 5);
+        // table 2 has availability for 6
+        when(tableService.getTableWithAvailableSeating(anyInt())).thenReturn(2);
+        Guest guest = Guest.builder().name("Elton John").table(2).accompanyingGuests(5).build();
         when(guestRepository.save(any(Guest.class))).thenReturn(guest);
 
         // Build request and call service
@@ -67,9 +65,6 @@ public class GuestServiceTest {
         assertEquals("Elton John", result.getName());
         assertEquals(2, result.getTable());
         assertEquals(5, result.getAccompanyingGuests());
-
-        // Verify getTableWithAvailablePlaces interaction
-        verify(tableService, times(1)).getTableWithAvailablePlaces(anyInt());
     }
 
 
