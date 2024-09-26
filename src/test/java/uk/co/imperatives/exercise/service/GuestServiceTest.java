@@ -16,6 +16,8 @@ public class GuestServiceTest {
 
     @Mock
     private GuestRepository guestRepository;
+    @Mock
+    private TableService tableService;
 
     @InjectMocks
     private GuestService guestService;
@@ -46,4 +48,29 @@ public class GuestServiceTest {
         // Verify repository interaction
         verify(guestRepository, times(1)).save(any(Guest.class));
     }
+
+    @Test
+    void shouldAddGuestToGuestListAndAssignAvailableTable() {
+        // table 2 has capacity for 6
+        when(tableService.getTableWithAvailablePlaces(anyInt())).thenReturn(2);
+        Guest guest = new Guest("Elton John", 2, 5);
+        when(guestRepository.save(any(Guest.class))).thenReturn(guest);
+
+        // Build request and call service
+        AddGuestRequest request =
+                AddGuestRequest.builder().name("Elton John").accompanyingGuests(5).build();
+
+        Guest result = guestService.addGuest(request);
+
+        // Validate the result
+        assertNotNull(result);
+        assertEquals("Elton John", result.getName());
+        assertEquals(2, result.getTable());
+        assertEquals(5, result.getAccompanyingGuests());
+
+        // Verify getTableWithAvailablePlaces interaction
+        verify(tableService, times(1)).getTableWithAvailablePlaces(anyInt());
+    }
+
+
 }

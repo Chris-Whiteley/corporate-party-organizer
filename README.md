@@ -22,7 +22,46 @@ The development process followed an Agile-like methodology by breaking the proje
 Each task was committed to version control with meaningful, descriptive commit messages.
 
 ### User Stories
-As an organiser, I want to add guests to the guest list so that I can manage who is invited.
+### User Story
+**As an organiser,** I want to add guests to the guest list so that I can manage who is invited.
+
+### Acceptance Criteria:
+- The organiser can add a guest to the guest list by providing a name, table number, and the number of accompanying guests.
+- The system will allow adding a guest more than once by updating the previous entry. This allows the organiser to modify the guest’s table or accompanying guests.
+- If no table number is provided, the system should automatically assign the guest to the next available table.
+- The organiser can add a guest even if they have no accompanying guests.
+- The organiser can add multiple guests to the same table.
+
+### Edge Cases:
+
+**Duplicate Names:**
+- The guest name must be unique.
+- The system allows adding a guest more than once by updating the previous entry, enabling the organiser to modify the guest’s table or accompanying guests.
+- The system allows correcting an existing guest name.
+
+**Missing Table Number:**
+- If no table number is provided, the system should assign the guest to the next available table with enough capacity.
+- If no tables are available, the system should notify the organiser.
+
+**Exceeding Table Capacity:**
+- The system must ensure that adding a guest and their accompanying guests does not exceed the table's predefined capacity.
+- If the capacity is exceeded, the system should either reject the addition or propose alternative tables.
+
+**Invalid Input:**
+- If an invalid table number is entered (e.g., negative or non-existent table), the system should display an error and prevent the addition.
+
+**Empty or Missing Fields:**
+- If the guest name is missing or blank, the system should reject the entry and display an error message.
+
+**Zero or Negative Accompanying Guests:**
+- The system should handle cases where accompanying guests are zero or negative by either rejecting or correcting the input.
+
+**Case Sensitivity:**
+- The system should decide whether guest names are case-sensitive or case-insensitive to avoid duplicate entries (e.g., "John Doe" vs. "john doe").
+
+### Additional Considerations:
+- Should the system handle extremely long guest names or names with special characters?
+
 As a guest, I want to be able to arrive at a party with extra friends, so I can join if there is space.
 As an organiser, I want to see how many seats are available, so I can plan the event.
 

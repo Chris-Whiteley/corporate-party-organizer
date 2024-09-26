@@ -9,6 +9,7 @@ import uk.co.imperatives.exercise.repository.GuestRepository;
 @RequiredArgsConstructor
 public class GuestService {
     private final GuestRepository guestRepository;
+    private final TableService tableService;
 
     public Guest addGuest(AddGuestRequest request) {
         var guest = Guest.builder()
