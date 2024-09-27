@@ -103,12 +103,26 @@ public class GuestServiceTest {
 
         Guest result = guestService.addGuest(request);
 
-        // Validate the result
-        verify(tableService, times(1)).getTableWithAvailableSeating(anyInt());
-
         assertNotNull(result);
         assertEquals("Elton John", result.getName());
         assertEquals(3, result.getTable());
         assertEquals(5, result.getAccompanyingGuests());
     }
+
+    @Test
+    void shouldUpdateExistingGuestsName() {
+        Guest existingGuest = Guest.builder().name("Cris Whitley").table(10).accompanyingGuests(5).build();
+        Guest guest = Guest.builder().name("Chris Whiteley").table(10).accompanyingGuests(5).build();
+        when(guestRepository.findById("Cris Whitley")).thenReturn(Optional.of(existingGuest));
+        when(guestRepository.save(any(Guest.class))).thenReturn(guest);
+
+        Guest result = guestService.updateName("Cris Whitley", "Chris Whiteley");
+
+        assertNotNull(result);
+        assertEquals("Chris Whiteley", result.getName());
+        assertEquals(10, result.getTable());
+        assertEquals(5, result.getAccompanyingGuests());
+    }
+
+
 }

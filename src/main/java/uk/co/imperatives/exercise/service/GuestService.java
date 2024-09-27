@@ -56,6 +56,10 @@ public class GuestService {
         }
     }
 
+    public Guest updateName(String oldName, String newName) {
+        return null;
+    }
+
     private int getTableWithAvailability(int requestedTableNo, int noOfGuests) {
         if (requestedTableNo == 0) {
             return tableService.getTableWithAvailableSeating(noOfGuests);
