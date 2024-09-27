@@ -1,10 +1,12 @@
 package uk.co.imperatives.exercise.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import uk.co.imperatives.exercise.exception.NoAvailabilityException;
 import uk.co.imperatives.exercise.model.Guest;
 import uk.co.imperatives.exercise.repository.GuestRepository;
 
@@ -124,5 +126,30 @@ public class GuestServiceTest {
         assertEquals(5, result.getAccompanyingGuests());
     }
 
+    @Test
+    void shouldNotifyWhenSpecifiedTableDoesNotHaveTheAvailability() {
+        when(tableService.hasAvailability(2, 4)).thenReturn(false);
+
+        NoAvailabilityException thrown = Assertions.assertThrows(NoAvailabilityException.class, () -> {
+            // Build request and call service
+            AddGuestRequest request = AddGuestRequest.builder().name("John").table(2).accompanyingGuests(3).build();
+            guestService.addGuest(request);
+        });
+
+        Assertions.assertEquals("Table 2 does not have the required availability", thrown.getMessage());
+    }
+
+    @Test
+    void shouldNotifyWhenNoTableHadTheAvailability() {
+        when(tableService.getTableWithAvailableSeating(6)).thenReturn(0);
+
+        NoAvailabilityException thrown = Assertions.assertThrows(NoAvailabilityException.class, () -> {
+            // Build request and call service
+            AddGuestRequest request = AddGuestRequest.builder().name("Chris").accompanyingGuests(5).build();
+            guestService.addGuest(request);
+        });
+
+        Assertions.assertEquals("No table was found with the required availability", thrown.getMessage());
+    }
 
 }

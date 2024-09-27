@@ -5,7 +5,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.imperatives.exercise.exception.GuestNotFoundException;
-import uk.co.imperatives.exercise.exception.TableNotFoundException;
+import uk.co.imperatives.exercise.exception.NoAvailabilityException;
 import uk.co.imperatives.exercise.model.Guest;
 import uk.co.imperatives.exercise.repository.GuestRepository;
 
@@ -38,18 +38,17 @@ public class GuestService {
             if (tableWithAvailability == 0) {
                 // No table with availability found, restore occupancy and throw exception
                 tableService.increaseOccupancy(existingGuest.getTable(), existingGuest.noOfGuests());
-                throw new TableNotFoundException("Table with availability not found for request " + request);
+                throwNoAvailabilityException(request);
             }
             guestToAddBuilder.table(tableWithAvailability);
         } else {
             // Handle new guest case
             var tableWithAvailability = getTableWithAvailability(request.getTable(), request.noOfGuests());
             if (tableWithAvailability == 0) {
-                throw new TableNotFoundException("Table with availability not found for request " + request);
+                throwNoAvailabilityException(request);
             }
             guestToAddBuilder.table(tableWithAvailability);
         }
-
 
         try {
             return guestRepository.save(guestToAddBuilder.build());
@@ -89,6 +88,13 @@ public class GuestService {
         return updatedGuest;
     }
 
+    private void throwNoAvailabilityException(AddGuestRequest request) {
+        if (request.hasTable()) {
+            throw new NoAvailabilityException("Table " + request.getTable() + " does not have the required availability");
+        } else {
+            throw new NoAvailabilityException("No table was found with the required availability");
+        }
+    }
 
     private int getTableWithAvailability(int requestedTableNo, int noOfGuests) {
         if (requestedTableNo == 0) {

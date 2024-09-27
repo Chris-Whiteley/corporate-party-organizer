@@ -37,7 +37,7 @@ Each task was committed to version control with meaningful, descriptive commit m
 **Duplicate Names:**
 - The guest name must be unique.
 - The system allows adding a guest more than once by updating the previous entry, enabling the organiser to modify the guest’s table or accompanying guests.
-- The system allows correcting an existing guest name.
+- The system allows correcting an existing guest's name.
 
 **Missing Table Number:**
 - If no table number is provided, the system should assign the guest to the next available table with enough capacity.
