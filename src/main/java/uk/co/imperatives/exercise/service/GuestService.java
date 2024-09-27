@@ -12,7 +12,7 @@ import uk.co.imperatives.exercise.repository.GuestRepository;
 @RequiredArgsConstructor
 public class GuestService {
     private final GuestRepository guestRepository;
-    private final TableService tableService;
+    private final TableServiceInterface tableService;
 
     @Transactional
     public Guest addGuest(AddGuestRequest request) {
@@ -35,14 +35,14 @@ public class GuestService {
             if (tableWithAvailability == 0) {
                 // No table with availability found, restore occupancy and throw exception
                 tableService.increaseOccupancy(existingGuest.getTable(), existingGuest.noOfGuests());
-                throw new TableNotFoundException("Table with availability not found for request " + request.getName());
+                throw new TableNotFoundException("Table with availability not found for request " + request);
             }
             guestToAddBuilder.table(tableWithAvailability);
         } else {
             // Handle new guest case
             var tableWithAvailability = getTableWithAvailability(request.getTable(), request.noOfGuests());
             if (tableWithAvailability == 0) {
-                throw new TableNotFoundException("Table with availability not found for request " + request.getName());
+                throw new TableNotFoundException("Table with availability not found for request " + request);
             }
             guestToAddBuilder.table(tableWithAvailability);
         }
