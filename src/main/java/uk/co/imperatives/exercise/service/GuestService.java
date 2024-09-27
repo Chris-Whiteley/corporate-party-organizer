@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.imperatives.exercise.exception.GuestNotFoundException;
 import uk.co.imperatives.exercise.exception.TableNotFoundException;
 import uk.co.imperatives.exercise.model.Guest;
 import uk.co.imperatives.exercise.repository.GuestRepository;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -56,9 +59,36 @@ public class GuestService {
         }
     }
 
+    @Transactional
     public Guest updateName(String oldName, String newName) {
-        return null;
+        // Find the guest by the old name
+        Optional<Guest> existingGuestOpt = guestRepository.findById(oldName);
+
+        // Check if the guest exists, if not throw GuestNotFoundException
+        if (existingGuestOpt.isEmpty()) {
+            throw new GuestNotFoundException("Guest with name " + oldName + " not found");
+        }
+
+        // Retrieve the existing guest
+        Guest existingGuest = existingGuestOpt.get();
+
+        // Delete the guest with the old name
+        guestRepository.delete(existingGuest);
+
+        // Create a new guest with the new name but keep other details the same
+        Guest updatedGuest = Guest.builder()
+                .name(newName)
+                .table(existingGuest.getTable())
+                .accompanyingGuests(existingGuest.getAccompanyingGuests())
+                .build();
+
+        // Save the new guest
+        guestRepository.save(updatedGuest);
+
+        // Return the newly created guest
+        return updatedGuest;
     }
+
 
     private int getTableWithAvailability(int requestedTableNo, int noOfGuests) {
         if (requestedTableNo == 0) {
