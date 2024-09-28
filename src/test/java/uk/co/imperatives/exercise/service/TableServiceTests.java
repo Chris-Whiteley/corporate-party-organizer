@@ -10,6 +10,7 @@ import uk.co.imperatives.exercise.repository.TableRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 public class TableServiceTests {
@@ -26,12 +27,17 @@ public class TableServiceTests {
 
     @Test
     void shouldAddTableAndAssignTableNumber() {
-        // table 1 has availability for 3
         Table tableToAdd = Table.builder().noOfSeats(6).noOfSeatsAllocated(0).build();
         Table returnedTable = Table.builder().number(1).noOfSeats(6).noOfSeatsAllocated(0).version(0L).build();
-        when(tableRepository.save(tableToAdd)).thenReturn(returnedTable);
 
-        // Build request and call service
+        when(tableRepository.save(argThat(table ->
+                table.getNumber() == null  &&
+                        table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
+                        table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
+                        table.getVersion()== null // matching null version field
+        ))).thenReturn(returnedTable);
+
+        // Call the service to add the table
         var noOfSeats = 6;
         Table result = tableService.addTable(noOfSeats);
 

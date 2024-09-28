@@ -1,17 +1,22 @@
 package uk.co.imperatives.exercise.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.co.imperatives.exercise.model.Table;
+import uk.co.imperatives.exercise.repository.TableRepository;
 
 import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TableService implements TableServiceInterface {
 
+    private final TableRepository tableRepository;
+
     public Table addTable(int noOfSeats) {
-        return null;
+        return tableRepository.save(Table.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
     public Table addTable(int tableNumber, int noOfSeats) {

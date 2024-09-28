@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Version;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(of = "number")
 public class Table {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "table_seq")
