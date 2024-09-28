@@ -1,10 +1,12 @@
 package uk.co.imperatives.exercise.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.model.Table;
 import uk.co.imperatives.exercise.repository.TableRepository;
 
@@ -51,9 +53,11 @@ public class TableServiceTests {
 
     @Test
     void shouldAddTableWithGivenTableNumber() {
+
         Table tableToAdd = Table.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).build();
         Table returnedTable = Table.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).version(0L).build();
 
+        when(tableRepository.existsById(10)).thenReturn(false);
         when(tableRepository.save(argThat(table ->
                 table.getNumber().equals(tableToAdd.getNumber()) &&
                         table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
@@ -61,7 +65,6 @@ public class TableServiceTests {
                         table.getVersion() == null
         ))).thenReturn(returnedTable);
 
-        // Call the service to add the table
         var tableNumber = 10;
         var noOfSeats = 4;
         Table result = tableService.addTable(tableNumber, noOfSeats);
@@ -72,6 +75,19 @@ public class TableServiceTests {
         assertEquals(returnedTable.getNoOfSeats(), result.getNoOfSeats());
         assertEquals(returnedTable.getNoOfSeatsAllocated(), result.getNoOfSeatsAllocated());
         assertEquals(returnedTable.getVersion(), result.getVersion());
+    }
+
+    @Test
+    void shouldNotifyOnAddTableWhenSpecifiedTableAlreadyExists() {
+        when(tableRepository.existsById(10)).thenReturn(true);
+
+        TableAlreadyExistsException thrown = Assertions.assertThrows(TableAlreadyExistsException.class, () -> {
+            var tableNumber = 10;
+            var noOfSeats = 4;
+            tableService.addTable(tableNumber, noOfSeats);
+        });
+
+        Assertions.assertEquals("Table with number 10 already exists.", thrown.getMessage());
     }
 
 }

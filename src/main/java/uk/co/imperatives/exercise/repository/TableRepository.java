@@ -4,5 +4,5 @@ import org.springframework.data.repository.CrudRepository;
 import uk.co.imperatives.exercise.model.Guest;
 import uk.co.imperatives.exercise.model.Table;
 
-public interface TableRepository extends CrudRepository<Table, Long> {
+public interface TableRepository extends CrudRepository<Table, Integer> {
 }

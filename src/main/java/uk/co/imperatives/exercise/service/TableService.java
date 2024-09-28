@@ -3,6 +3,7 @@ package uk.co.imperatives.exercise.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.model.Table;
 import uk.co.imperatives.exercise.repository.TableRepository;
 
@@ -20,7 +21,19 @@ public class TableService implements TableServiceInterface {
     }
 
     public Table addTable(int tableNumber, int noOfSeats) {
-        return tableRepository.save(Table.builder().number(tableNumber).noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
+        // Check if a table with the same number already exists
+        if (tableRepository.existsById(tableNumber)) {
+            throw new TableAlreadyExistsException("Table with number " + tableNumber + " already exists.");
+        }
+
+        // Proceed to save the new table
+        Table newTable = Table.builder()
+                .number(tableNumber)
+                .noOfSeats(noOfSeats)
+                .noOfSeatsAllocated(0)
+                .build();
+
+        return tableRepository.save(newTable);
     }
 
     public List<Table> getAllTables() {

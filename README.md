@@ -57,15 +57,16 @@ Each task was committed to version control with meaningful, descriptive commit m
 ### Acceptance Criteria:
 - The organiser can remove a table by specifying its table number.
 - If the table has guests already assigned, the system will provide a warning and prevent the removal.
+- If the table does not exist the user will be notified
 - The system removes the table if no guests are assigned to it.
 
 ### Edge Cases:
-**Removing an Allocated Table:**
 **Invalid Input:**
 - If no of seats is less than 1, the system should display an error and prevent the addition.
 
 **Removing an Allocated Table:**
 - If the table is assigned to any guests, the system will prevent its removal and notify the organiser.
+- If the specified table does not exist
 
 ### User Stories - Guest List Management
 ### User Story
