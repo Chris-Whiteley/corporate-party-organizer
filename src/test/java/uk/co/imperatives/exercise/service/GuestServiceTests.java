@@ -140,7 +140,7 @@ public class GuestServiceTests {
     }
 
     @Test
-    void shouldNotifyWhenNoTableHadTheAvailability() {
+    void shouldNotifyWhenNoTableHasTheAvailability() {
         when(tableService.getTableWithAvailableSeating(6)).thenReturn(0);
 
         NoAvailabilityException thrown = Assertions.assertThrows(NoAvailabilityException.class, () -> {
@@ -151,5 +151,4 @@ public class GuestServiceTests {
 
         Assertions.assertEquals("No table was found with the required availability", thrown.getMessage());
     }
-
 }

@@ -21,7 +21,53 @@ The development process followed an Agile-like methodology by breaking the proje
 
 Each task was committed to version control with meaningful, descriptive commit messages.
 
-### User Stories
+### User Stories - Table Management
+### User Story
+**As an organiser,** I want to add a table with a specified number of seats so that I can expand seating capacity for the event.
+
+### Acceptance Criteria:
+- The organiser can add a table by providing the number of seats.
+- The system will automatically assign a unique table number if none is specified.
+- The system ensures that a newly added table is available for assigning guests.
+
+---
+
+### User Story
+**As an organiser,** I want to add a table with a specific table number and number of seats so that I can control table assignments for certain guests.
+
+### Acceptance Criteria:
+- The organiser can add a table by providing both a table number and the number of seats.
+- The system ensures that the provided table number is unique and does not conflict with existing tables.
+- The system will add the table with the specified number of seats.
+
+---
+
+### User Story
+**As an organiser,** I want to view a list of all tables so that I can manage seating arrangements effectively.
+
+### Acceptance Criteria:
+- The organiser can retrieve a list of all tables along with their respective seat capacities.
+- The system displays information about each table, including the total number of seats and the number of seats currently allocated.
+
+---
+
+### User Story
+**As an organiser,** I want to remove a specific table by table number so that I can update the seating arrangements when a table is no longer needed.
+
+### Acceptance Criteria:
+- The organiser can remove a table by specifying its table number.
+- If the table has guests already assigned, the system will provide a warning and prevent the removal.
+- The system removes the table if no guests are assigned to it.
+
+### Edge Cases:
+**Removing an Allocated Table:**
+**Invalid Input:**
+- If no of seats is less than 1, the system should display an error and prevent the addition.
+
+**Removing an Allocated Table:**
+- If the table is assigned to any guests, the system will prevent its removal and notify the organiser.
+
+### User Stories - Guest List Management
 ### User Story
 **As an organiser,** I want to add guests to the guest list so that I can manage who is invited.
 
