@@ -20,7 +20,7 @@ public class TableService implements TableServiceInterface {
     }
 
     public Table addTable(int tableNumber, int noOfSeats) {
-        return null;
+        return tableRepository.save(Table.builder().number(tableNumber).noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
     public List<Table> getAllTables() {

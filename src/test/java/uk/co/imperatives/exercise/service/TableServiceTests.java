@@ -31,10 +31,10 @@ public class TableServiceTests {
         Table returnedTable = Table.builder().number(1).noOfSeats(6).noOfSeatsAllocated(0).version(0L).build();
 
         when(tableRepository.save(argThat(table ->
-                table.getNumber() == null  &&
+                table.getNumber() == null &&
                         table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
                         table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
-                        table.getVersion()== null
+                        table.getVersion() == null
         ))).thenReturn(returnedTable);
 
         // Call the service to add the table
@@ -55,14 +55,14 @@ public class TableServiceTests {
         Table returnedTable = Table.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).version(0L).build();
 
         when(tableRepository.save(argThat(table ->
-                table.getNumber() == 10  &&
+                table.getNumber().equals(tableToAdd.getNumber()) &&
                         table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
                         table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
-                        table.getVersion()== null
+                        table.getVersion() == null
         ))).thenReturn(returnedTable);
 
         // Call the service to add the table
-        var tableNumber = 4;
+        var tableNumber = 10;
         var noOfSeats = 4;
         Table result = tableService.addTable(tableNumber, noOfSeats);
 
