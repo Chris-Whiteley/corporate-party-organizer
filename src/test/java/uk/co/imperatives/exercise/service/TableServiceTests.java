@@ -114,4 +114,50 @@ public class TableServiceTests {
         Assertions.assertEquals("Table number should be a number bigger than zero", thrown.getMessage());
     }
 
+    @Test
+    void shouldErrorOnAddTableAndAssignTableNumberWhenNoOfSeatsIsNegative() {
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            var noOfSeats = -1;
+            tableService.addTable(noOfSeats);
+        });
+
+        Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
+    }
+
+    @Test
+    void shouldErrorOnAddTableAndAssignTableNumberWhenNoOfSeatsIsZero() {
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            var noOfSeats = 0;
+            tableService.addTable(noOfSeats);
+        });
+
+        Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
+    }
+
+    @Test
+    void shouldErrorOnAddTableWithGivenTableNumberWhenNoOfSeatsIsZero() {
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            var tableNumber = 1;
+            var noOfSeats = 0;
+            tableService.addTable(tableNumber, noOfSeats);
+        });
+
+        Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
+    }
+
+    @Test
+    void shouldErrorOnAddTableWithGivenTableNumberWhenNoOfSeatsIsNegative() {
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            var tableNumber = 1;
+            var noOfSeats = -1;
+            tableService.addTable(tableNumber, noOfSeats);
+        });
+
+        Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
+    }
+
 }
