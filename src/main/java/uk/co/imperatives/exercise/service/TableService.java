@@ -21,6 +21,8 @@ public class TableService implements TableServiceInterface {
     }
 
     public Table addTable(int tableNumber, int noOfSeats) {
+        if (tableNumber <= 0) throw new IllegalArgumentException ("Table number should be a number bigger than zero");
+
         // Check if a table with the same number already exists
         if (tableRepository.existsById(tableNumber)) {
             throw new TableAlreadyExistsException("Table with number " + tableNumber + " already exists.");
