@@ -17,11 +17,13 @@ public class TableService implements TableServiceInterface {
     private final TableRepository tableRepository;
 
     public Table addTable(int noOfSeats) {
+        if (noOfSeats <= 0) throw new IllegalArgumentException ("Number of seats should be a number bigger than zero");
         return tableRepository.save(Table.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
     public Table addTable(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException ("Table number should be a number bigger than zero");
+        if (noOfSeats <= 0) throw new IllegalArgumentException ("Number of seats should be a number bigger than zero");
 
         // Check if a table with the same number already exists
         if (tableRepository.existsById(tableNumber)) {
