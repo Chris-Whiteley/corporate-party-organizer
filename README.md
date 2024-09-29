@@ -63,6 +63,7 @@ Each task was committed to version control with meaningful, descriptive commit m
 ### Edge Cases:
 **Invalid Input:**
 - If no of seats is less than 1, the system should display an error and prevent the addition.
+- If table number entered is less than 1, the system should display an error and prevent the addition.
 
 **Removing an Allocated Table:**
 - If the table is assigned to any guests, the system will prevent its removal and notify the organiser.

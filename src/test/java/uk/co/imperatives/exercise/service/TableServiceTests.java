@@ -90,4 +90,28 @@ public class TableServiceTests {
         Assertions.assertEquals("Table with number 10 already exists.", thrown.getMessage());
     }
 
+    @Test
+    void shouldErrorOnAddTableWhenSpecifiedTableIsZero() {
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            var tableNumber = 0;
+            var noOfSeats = 8;
+            tableService.addTable(tableNumber, noOfSeats);
+        });
+
+        Assertions.assertEquals("Table number should be a number bigger than zero", thrown.getMessage());
+    }
+
+    @Test
+    void shouldErrorOnAddTableWhenSpecifiedTableIsNegative() {
+
+        IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            var tableNumber = -1;
+            var noOfSeats = 8;
+            tableService.addTable(tableNumber, noOfSeats);
+        });
+
+        Assertions.assertEquals("Table number should be a number bigger than zero", thrown.getMessage());
+    }
+
 }
