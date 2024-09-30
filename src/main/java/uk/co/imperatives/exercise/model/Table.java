@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Version;
 
 
 @Entity
+@Setter
 @Getter
 @ToString
 @Builder
@@ -21,4 +22,8 @@ public class Table {
     private int noOfSeatsAllocated;
     @Version
     private Long version;
+
+    public int getUnAllocatedSeats() {
+        return noOfSeatsAllocated - noOfSeats;
+    }
 }

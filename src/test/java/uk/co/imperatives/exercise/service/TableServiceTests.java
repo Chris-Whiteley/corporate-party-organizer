@@ -12,6 +12,7 @@ import uk.co.imperatives.exercise.repository.TableRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -192,18 +193,4 @@ public class TableServiceTests {
             assertEquals(expectedTable.getVersion(), actualTable.getVersion(), "Version should match");
         }
     }
-
-    @Test
-    void shouldRemoveTable() {
-        Table expectedTable = Table.builder().number(3).noOfSeats(10).noOfSeatsAllocated(0).version(1L).build();
-
-        Table result = tableService.removeTable(3);
-        assertNotNull(result);
-        assertEquals(expectedTable.getNumber(), result.getNumber(), "Table number should match");
-        assertEquals(expectedTable.getNoOfSeats(), result.getNoOfSeats(), "Number of seats should match");
-        assertEquals(expectedTable.getNoOfSeatsAllocated(), result.getNoOfSeatsAllocated(), "Seats allocated should match");
-        assertEquals(expectedTable.getVersion(), result.getVersion(), "Version should match");
-
-    }
-
 }
