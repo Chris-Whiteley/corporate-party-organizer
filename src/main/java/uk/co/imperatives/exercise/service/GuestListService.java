@@ -9,7 +9,10 @@ import uk.co.imperatives.exercise.exception.NoAvailabilityException;
 import uk.co.imperatives.exercise.model.GuestListEntry;
 import uk.co.imperatives.exercise.repository.GuestListEntryRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +68,7 @@ public class GuestListService {
 
         // Check if the guest exists, if not throw GuestNotFoundException
         if (existingGuestOpt.isEmpty()) {
-            throw new GuestNotFoundException("GuestListEntry with name " + oldName + " not found");
+            throw new GuestNotFoundException("Guest with name " + oldName + " not found");
         }
 
         // Retrieve the existing guest
@@ -87,6 +90,39 @@ public class GuestListService {
         // Return the newly created guest
         return updatedGuestListEntry;
     }
+
+    public List<GuestListEntry> getAllGuests() {
+        return StreamSupport.stream(guestListEntryRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    public GuestListEntry recordGuestArrival(String guestName, int accompanyingGuests) {
+        Optional<GuestListEntry> existingGuestOpt = guestListEntryRepository.findById(guestName);
+
+        // Check if the guest exists, if not throw GuestNotFoundException
+        if (existingGuestOpt.isEmpty()) {
+            throw new GuestNotFoundException("Guest with name " + guestName + " not found");
+        }
+
+        var existingGuestEntry = existingGuestOpt.get();
+        existingGuestEntry.recordTimeArrived();
+        return guestListEntryRepository.save(existingGuestEntry);
+    }
+
+    public void delete(String guestName) {
+        if (!guestListEntryRepository.existsById(guestName)) {
+            throw new GuestNotFoundException("Guest with name " + guestName + " not found");
+        }
+
+        guestListEntryRepository.deleteById(guestName);
+    }
+
+    public List<GuestListEntry> getArrivedGuests() {
+        return StreamSupport.stream(guestListEntryRepository.findAll().spliterator(), false)
+                .filter(guestListEntry -> guestListEntry.getTimeArrived() != null)
+                .collect(Collectors.toList());
+    }
+
 
     private void throwNoAvailabilityException(AddGuestRequest request) {
         if (request.hasTable()) {

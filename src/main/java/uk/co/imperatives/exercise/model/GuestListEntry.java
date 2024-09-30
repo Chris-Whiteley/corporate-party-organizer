@@ -7,6 +7,9 @@ import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.data.annotation.Version;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Table(name = "guest_list_entry")
@@ -24,11 +27,18 @@ public class GuestListEntry {
     @Column(name = "table_number") // Renamed to avoid keyword conflict
     private int tableNumber;
 
+    @Column(name = "time_arrived")
+    private LocalDateTime timeArrived;
+
     private int accompanyingGuests;
     @Version
     private Long version;
 
     public int noOfGuests() {
         return accompanyingGuests + 1;
+    }
+
+    public void recordTimeArrived() {
+        this.timeArrived = LocalDateTime.now();
     }
 }
