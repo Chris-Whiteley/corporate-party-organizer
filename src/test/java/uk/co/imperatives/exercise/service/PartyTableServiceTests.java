@@ -7,24 +7,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
-import uk.co.imperatives.exercise.model.Table;
-import uk.co.imperatives.exercise.repository.TableRepository;
+import uk.co.imperatives.exercise.model.PartyTable;
+import uk.co.imperatives.exercise.repository.PartyTableRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
-public class TableServiceTests {
+public class PartyTableServiceTests {
     @Mock
-    private TableRepository tableRepository;
+    private PartyTableRepository partyTableRepository;
 
     @InjectMocks
-    private TableService tableService;
+    private PartyTableService partyTableService;
 
     @BeforeEach
     void setUp() {
@@ -33,10 +32,10 @@ public class TableServiceTests {
 
     @Test
     void shouldAddTableAndAssignTableNumber() {
-        Table tableToAdd = Table.builder().noOfSeats(6).noOfSeatsAllocated(0).build();
-        Table returnedTable = Table.builder().number(1).noOfSeats(6).noOfSeatsAllocated(0).version(0L).build();
+        PartyTable tableToAdd = PartyTable.builder().noOfSeats(6).noOfSeatsAllocated(0).build();
+        PartyTable returnedTable = PartyTable.builder().number(1).noOfSeats(6).noOfSeatsAllocated(0).version(0L).build();
 
-        when(tableRepository.save(argThat(table ->
+        when(partyTableRepository.save(argThat(table ->
                 table.getNumber() == null &&
                         table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
                         table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
@@ -45,7 +44,7 @@ public class TableServiceTests {
 
         // Call the service to add the table
         var noOfSeats = 6;
-        Table result = tableService.addTable(noOfSeats);
+        PartyTable result = partyTableService.addTable(noOfSeats);
 
         // Validate the result
         assertNotNull(result);
@@ -58,11 +57,11 @@ public class TableServiceTests {
     @Test
     void shouldAddTableWithGivenTableNumber() {
 
-        Table tableToAdd = Table.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).build();
-        Table returnedTable = Table.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).version(0L).build();
+        PartyTable tableToAdd = PartyTable.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).build();
+        PartyTable returnedTable = PartyTable.builder().number(10).noOfSeats(4).noOfSeatsAllocated(0).version(0L).build();
 
-        when(tableRepository.existsById(10)).thenReturn(false);
-        when(tableRepository.save(argThat(table ->
+        when(partyTableRepository.existsById(10)).thenReturn(false);
+        when(partyTableRepository.save(argThat(table ->
                 table.getNumber().equals(tableToAdd.getNumber()) &&
                         table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
                         table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
@@ -71,7 +70,7 @@ public class TableServiceTests {
 
         var tableNumber = 10;
         var noOfSeats = 4;
-        Table result = tableService.addTable(tableNumber, noOfSeats);
+        PartyTable result = partyTableService.addTable(tableNumber, noOfSeats);
 
         // Validate the result
         assertNotNull(result);
@@ -83,12 +82,12 @@ public class TableServiceTests {
 
     @Test
     void shouldNotifyOnAddTableWhenSpecifiedTableAlreadyExists() {
-        when(tableRepository.existsById(10)).thenReturn(true);
+        when(partyTableRepository.existsById(10)).thenReturn(true);
 
         TableAlreadyExistsException thrown = Assertions.assertThrows(TableAlreadyExistsException.class, () -> {
             var tableNumber = 10;
             var noOfSeats = 4;
-            tableService.addTable(tableNumber, noOfSeats);
+            partyTableService.addTable(tableNumber, noOfSeats);
         });
 
         Assertions.assertEquals("Table with number 10 already exists.", thrown.getMessage());
@@ -100,7 +99,7 @@ public class TableServiceTests {
         IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             var tableNumber = 0;
             var noOfSeats = 8;
-            tableService.addTable(tableNumber, noOfSeats);
+            partyTableService.addTable(tableNumber, noOfSeats);
         });
 
         Assertions.assertEquals("Table number should be a number bigger than zero", thrown.getMessage());
@@ -112,7 +111,7 @@ public class TableServiceTests {
         IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             var tableNumber = -1;
             var noOfSeats = 8;
-            tableService.addTable(tableNumber, noOfSeats);
+            partyTableService.addTable(tableNumber, noOfSeats);
         });
 
         Assertions.assertEquals("Table number should be a number bigger than zero", thrown.getMessage());
@@ -123,7 +122,7 @@ public class TableServiceTests {
 
         IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             var noOfSeats = -1;
-            tableService.addTable(noOfSeats);
+            partyTableService.addTable(noOfSeats);
         });
 
         Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
@@ -134,7 +133,7 @@ public class TableServiceTests {
 
         IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             var noOfSeats = 0;
-            tableService.addTable(noOfSeats);
+            partyTableService.addTable(noOfSeats);
         });
 
         Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
@@ -146,7 +145,7 @@ public class TableServiceTests {
         IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             var tableNumber = 1;
             var noOfSeats = 0;
-            tableService.addTable(tableNumber, noOfSeats);
+            partyTableService.addTable(tableNumber, noOfSeats);
         });
 
         Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
@@ -158,7 +157,7 @@ public class TableServiceTests {
         IllegalArgumentException thrown = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             var tableNumber = 1;
             var noOfSeats = -1;
-            tableService.addTable(tableNumber, noOfSeats);
+            partyTableService.addTable(tableNumber, noOfSeats);
         });
 
         Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
@@ -167,16 +166,16 @@ public class TableServiceTests {
     @Test
     void shouldReturnAllTables() {
         // Arrange: Set up tables in the repository
-        List<Table> tablesInRepo = new ArrayList<>();
-        tablesInRepo.add(Table.builder().number(1).noOfSeats(4).noOfSeatsAllocated(0).version(1L).build());
-        tablesInRepo.add(Table.builder().number(2).noOfSeats(6).noOfSeatsAllocated(0).version(1L).build());
-        tablesInRepo.add(Table.builder().number(3).noOfSeats(2).noOfSeatsAllocated(2).version(2L).build());
+        List<PartyTable> tablesInRepo = new ArrayList<>();
+        tablesInRepo.add(PartyTable.builder().number(1).noOfSeats(4).noOfSeatsAllocated(0).version(1L).build());
+        tablesInRepo.add(PartyTable.builder().number(2).noOfSeats(6).noOfSeatsAllocated(0).version(1L).build());
+        tablesInRepo.add(PartyTable.builder().number(3).noOfSeats(2).noOfSeatsAllocated(2).version(2L).build());
 
         // Mock the repository response
-        when(tableRepository.findAll()).thenReturn(tablesInRepo);
+        when(partyTableRepository.findAll()).thenReturn(tablesInRepo);
 
         // Act: Call the service to get all tables
-        List<Table> result = tableService.getAllTables();
+        List<PartyTable> result = partyTableService.getAllTables();
 
         // Assert: Validate the result list
         assertNotNull(result);
@@ -184,8 +183,8 @@ public class TableServiceTests {
 
         // Compare the content of each table
         for (int i = 0; i < tablesInRepo.size(); i++) {
-            Table expectedTable = tablesInRepo.get(i);
-            Table actualTable = result.get(i);
+            PartyTable expectedTable = tablesInRepo.get(i);
+            PartyTable actualTable = result.get(i);
 
             assertEquals(expectedTable.getNumber(), actualTable.getNumber(), "Table number should match");
             assertEquals(expectedTable.getNoOfSeats(), actualTable.getNoOfSeats(), "Number of seats should match");

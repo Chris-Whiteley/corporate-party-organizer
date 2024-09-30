@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GuestListService {
     private final GuestListEntryRepository guestListEntryRepository;
-    private final TableServiceInterface tableService;
+    private final PartyTableServiceInterface tableService;
 
     @Transactional
     public GuestListEntry addGuest(AddGuestRequest request) {
@@ -31,23 +31,23 @@ public class GuestListService {
         if (existingGuestOptional.isPresent()) {
             var existingGuest = existingGuestOptional.get();
             // Temporarily remove places from the table
-            tableService.decreaseOccupancy(existingGuest.getTable(), existingGuest.noOfGuests());
+            tableService.decreaseOccupancy(existingGuest.getTableNumber(), existingGuest.noOfGuests());
 
             // Get a suitable table with availability
             var tableWithAvailability = getTableWithAvailability(request.getTable(), request.noOfGuests());
             if (tableWithAvailability == 0) {
                 // No table with availability found, restore occupancy and throw exception
-                tableService.increaseOccupancy(existingGuest.getTable(), existingGuest.noOfGuests());
+                tableService.increaseOccupancy(existingGuest.getTableNumber(), existingGuest.noOfGuests());
                 throwNoAvailabilityException(request);
             }
-            guestToAddBuilder.table(tableWithAvailability);
+            guestToAddBuilder.tableNumber(tableWithAvailability);
         } else {
             // Handle new guest case
             var tableWithAvailability = getTableWithAvailability(request.getTable(), request.noOfGuests());
             if (tableWithAvailability == 0) {
                 throwNoAvailabilityException(request);
             }
-            guestToAddBuilder.table(tableWithAvailability);
+            guestToAddBuilder.tableNumber(tableWithAvailability);
         }
 
         try {
@@ -77,7 +77,7 @@ public class GuestListService {
         // Create a new guest with the new name but keep other details the same
         GuestListEntry updatedGuestListEntry = GuestListEntry.builder()
                 .name(newName)
-                .table(existingGuestListEntry.getTable())
+                .tableNumber(existingGuestListEntry.getTableNumber())
                 .accompanyingGuests(existingGuestListEntry.getAccompanyingGuests())
                 .build();
 

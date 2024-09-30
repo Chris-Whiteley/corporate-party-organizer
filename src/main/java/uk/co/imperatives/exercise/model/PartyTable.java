@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Version;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "number")
-public class Table {
+public class PartyTable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "table_seq")
     @SequenceGenerator(name = "table_seq", sequenceName = "table_sequence", allocationSize = 1)

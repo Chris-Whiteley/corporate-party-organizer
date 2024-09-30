@@ -22,7 +22,7 @@ public class GuestListEntryServiceTests {
     private GuestListEntryRepository guestListEntryRepository;
 
     @Mock
-    private TableServiceInterface tableService;
+    private PartyTableServiceInterface tableService;
 
     @InjectMocks
     private GuestListService guestListService;
@@ -36,7 +36,7 @@ public class GuestListEntryServiceTests {
     void shouldAddGuestToGuestList() {
         // table 1 has availability for 3
         when(tableService.hasAvailability(1, 3)).thenReturn(true);
-        GuestListEntry guestListEntry = GuestListEntry.builder().name("John").table(1).accompanyingGuests(2).build();
+        GuestListEntry guestListEntry = GuestListEntry.builder().name("John").tableNumber(1).accompanyingGuests(2).build();
         when(guestListEntryRepository.save(any(GuestListEntry.class))).thenReturn(guestListEntry);
 
         // Build request and call service
@@ -47,7 +47,7 @@ public class GuestListEntryServiceTests {
         // Validate the result
         assertNotNull(result);
         assertEquals("John", result.getName());
-        assertEquals(1, result.getTable());
+        assertEquals(1, result.getTableNumber());
         assertEquals(2, result.getAccompanyingGuests());
     }
 
@@ -55,8 +55,8 @@ public class GuestListEntryServiceTests {
     void shouldUpdateExistingGuestOnGuestList() {
         // table 2 has availability for 4
         when(tableService.hasAvailability(2, 4)).thenReturn(true);
-        GuestListEntry existingGuestListEntry = GuestListEntry.builder().name("John").table(1).accompanyingGuests(2).build();
-        GuestListEntry guestListEntry = GuestListEntry.builder().name("John").table(2).accompanyingGuests(3).build();
+        GuestListEntry existingGuestListEntry = GuestListEntry.builder().name("John").tableNumber(1).accompanyingGuests(2).build();
+        GuestListEntry guestListEntry = GuestListEntry.builder().name("John").tableNumber(2).accompanyingGuests(3).build();
         when(guestListEntryRepository.findById("John")).thenReturn(Optional.of(existingGuestListEntry));
         when(guestListEntryRepository.save(any(GuestListEntry.class))).thenReturn(guestListEntry);
 
@@ -68,7 +68,7 @@ public class GuestListEntryServiceTests {
         // Validate the result
         assertNotNull(result);
         assertEquals("John", result.getName());
-        assertEquals(2, result.getTable());
+        assertEquals(2, result.getTableNumber());
         assertEquals(3, result.getAccompanyingGuests());
     }
 
@@ -76,7 +76,7 @@ public class GuestListEntryServiceTests {
     void shouldAddGuestToGuestListAndAssignAvailableTable() {
         // table 2 has availability for 6
         when(tableService.getTableWithAvailableSeating(anyInt())).thenReturn(2);
-        GuestListEntry guestListEntry = GuestListEntry.builder().name("Elton John").table(2).accompanyingGuests(5).build();
+        GuestListEntry guestListEntry = GuestListEntry.builder().name("Elton John").tableNumber(2).accompanyingGuests(5).build();
         when(guestListEntryRepository.save(any(GuestListEntry.class))).thenReturn(guestListEntry);
 
         // Build request and call service
@@ -87,7 +87,7 @@ public class GuestListEntryServiceTests {
         // Validate the result
         assertNotNull(result);
         assertEquals("Elton John", result.getName());
-        assertEquals(2, result.getTable());
+        assertEquals(2, result.getTableNumber());
         assertEquals(5, result.getAccompanyingGuests());
     }
 
@@ -95,8 +95,8 @@ public class GuestListEntryServiceTests {
     void shouldUpdateExistingGuestOnGuestListAndAssignAvailableTable() {
         // table 3 has availability for 6
         when(tableService.getTableWithAvailableSeating(6)).thenReturn(3);
-        GuestListEntry existingGuestListEntry = GuestListEntry.builder().name("Elton John").table(2).accompanyingGuests(3).build();
-        GuestListEntry guestListEntry = GuestListEntry.builder().name("Elton John").table(3).accompanyingGuests(5).build();
+        GuestListEntry existingGuestListEntry = GuestListEntry.builder().name("Elton John").tableNumber(2).accompanyingGuests(3).build();
+        GuestListEntry guestListEntry = GuestListEntry.builder().name("Elton John").tableNumber(3).accompanyingGuests(5).build();
         when(guestListEntryRepository.findById("Elton John")).thenReturn(Optional.of(existingGuestListEntry));
         when(guestListEntryRepository.save(any(GuestListEntry.class))).thenReturn(guestListEntry);
 
@@ -107,14 +107,14 @@ public class GuestListEntryServiceTests {
 
         assertNotNull(result);
         assertEquals("Elton John", result.getName());
-        assertEquals(3, result.getTable());
+        assertEquals(3, result.getTableNumber());
         assertEquals(5, result.getAccompanyingGuests());
     }
 
     @Test
     void shouldUpdateExistingGuestsName() {
-        GuestListEntry existingGuestListEntry = GuestListEntry.builder().name("Cris Whitley").table(10).accompanyingGuests(5).build();
-        GuestListEntry guestListEntry = GuestListEntry.builder().name("Chris Whiteley").table(10).accompanyingGuests(5).build();
+        GuestListEntry existingGuestListEntry = GuestListEntry.builder().name("Cris Whitley").tableNumber(10).accompanyingGuests(5).build();
+        GuestListEntry guestListEntry = GuestListEntry.builder().name("Chris Whiteley").tableNumber(10).accompanyingGuests(5).build();
         when(guestListEntryRepository.findById("Cris Whitley")).thenReturn(Optional.of(existingGuestListEntry));
         when(guestListEntryRepository.save(any(GuestListEntry.class))).thenReturn(guestListEntry);
 
@@ -122,7 +122,7 @@ public class GuestListEntryServiceTests {
 
         assertNotNull(result);
         assertEquals("Chris Whiteley", result.getName());
-        assertEquals(10, result.getTable());
+        assertEquals(10, result.getTableNumber());
         assertEquals(5, result.getAccompanyingGuests());
     }
 

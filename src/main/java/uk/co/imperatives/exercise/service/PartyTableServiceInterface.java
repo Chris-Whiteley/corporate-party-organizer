@@ -1,15 +1,15 @@
 package uk.co.imperatives.exercise.service;
 
-import uk.co.imperatives.exercise.model.Table;
+import uk.co.imperatives.exercise.model.PartyTable;
 
 import java.util.List;
 
-public interface TableServiceInterface {
-    Table addTable(int noOfSeats);
+public interface PartyTableServiceInterface {
+    PartyTable addTable(int noOfSeats);
 
-    Table addTable(int tableNumber, int noOfSeats);
+    PartyTable addTable(int tableNumber, int noOfSeats);
 
-    List<Table> getAllTables();
+    List<PartyTable> getAllTables();
 
     void removeTable(int tableNumber);
 

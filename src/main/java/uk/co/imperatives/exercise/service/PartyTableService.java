@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.TableInUseException;
-import uk.co.imperatives.exercise.model.Table;
-import uk.co.imperatives.exercise.repository.TableRepository;
+import uk.co.imperatives.exercise.model.PartyTable;
+import uk.co.imperatives.exercise.repository.PartyTableRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,46 +16,46 @@ import java.util.stream.StreamSupport;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TableService implements TableServiceInterface {
+public class PartyTableService implements PartyTableServiceInterface {
 
-    private final TableRepository tableRepository;
+    private final PartyTableRepository partyTableRepository;
 
     @Override
-    public Table addTable(int noOfSeats) {
+    public PartyTable addTable(int noOfSeats) {
         if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
-        return tableRepository.save(Table.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
+        return partyTableRepository.save(PartyTable.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
     @Override
-    public Table addTable(int tableNumber, int noOfSeats) {
+    public PartyTable addTable(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
         if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
 
         // Check if a table with the same number already exists
-        if (tableRepository.existsById(tableNumber)) {
+        if (partyTableRepository.existsById(tableNumber)) {
             throw new TableAlreadyExistsException("Table with number " + tableNumber + " already exists.");
         }
 
         // Proceed to save the new table
-        Table newTable = Table.builder()
+        PartyTable newTable = PartyTable.builder()
                 .number(tableNumber)
                 .noOfSeats(noOfSeats)
                 .noOfSeatsAllocated(0)
                 .build();
 
-        return tableRepository.save(newTable);
+        return partyTableRepository.save(newTable);
     }
 
     @Override
-    public List<Table> getAllTables() {
-        return StreamSupport.stream(tableRepository.findAll().spliterator(), false).collect(Collectors.toList());
+    public List<PartyTable> getAllTables() {
+        return StreamSupport.stream(partyTableRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 
     @Override
     public void removeTable(int tableNumber) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
-        Table table = tableRepository.findById(tableNumber)
+        PartyTable table = partyTableRepository.findById(tableNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
 
         // Check if the table has allocated seats
@@ -64,28 +64,28 @@ public class TableService implements TableServiceInterface {
         }
 
         // Proceed with deletion if no allocated seats
-        tableRepository.deleteById(tableNumber);
+        partyTableRepository.deleteById(tableNumber);
     }
 
     @Override
     public int getTableWithAvailableSeating(int noOfSeats) {
         var tableOptional =
-                StreamSupport.stream(tableRepository.findAll().spliterator(), false)
+                StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
                         .filter(table -> table.getUnAllocatedSeats() >= noOfSeats)
                         .findAny();
 
-        return tableOptional.map(Table::getNumber).orElse(0);
+        return tableOptional.map(PartyTable::getNumber).orElse(0);
     }
 
     @Override
     public void decreaseOccupancy(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
-        Table table = tableRepository.findById(tableNumber)
+        PartyTable table = partyTableRepository.findById(tableNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
 
         table.setNoOfSeatsAllocated(table.getNoOfSeatsAllocated() - noOfSeats);
-        tableRepository.save(table);
+        partyTableRepository.save(table);
 
     }
 
@@ -93,18 +93,18 @@ public class TableService implements TableServiceInterface {
     public void increaseOccupancy(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
-        Table table = tableRepository.findById(tableNumber)
+        PartyTable table = partyTableRepository.findById(tableNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
 
         table.setNoOfSeatsAllocated(table.getNoOfSeatsAllocated() + noOfSeats);
-        tableRepository.save(table);
+        partyTableRepository.save(table);
     }
 
     @Override
     public boolean hasAvailability(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
-        Table table = tableRepository.findById(tableNumber)
+        PartyTable table = partyTableRepository.findById(tableNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
 
         return table.getUnAllocatedSeats() >= noOfSeats;
