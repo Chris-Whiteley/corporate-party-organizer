@@ -11,7 +11,7 @@ public interface TableServiceInterface {
 
     List<Table> getAllTables();
 
-    void removeTable(int tableNumber);
+    Table removeTable(int tableNumber);
 
     int getTableWithAvailableSeating(int noOfSeats);
 

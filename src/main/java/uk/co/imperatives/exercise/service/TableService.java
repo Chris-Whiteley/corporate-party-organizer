@@ -8,6 +8,8 @@ import uk.co.imperatives.exercise.model.Table;
 import uk.co.imperatives.exercise.repository.TableRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Slf4j
@@ -18,14 +20,14 @@ public class TableService implements TableServiceInterface {
 
     @Override
     public Table addTable(int noOfSeats) {
-        if (noOfSeats <= 0) throw new IllegalArgumentException ("Number of seats should be a number bigger than zero");
+        if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
         return tableRepository.save(Table.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
     @Override
     public Table addTable(int tableNumber, int noOfSeats) {
-        if (tableNumber <= 0) throw new IllegalArgumentException ("Table number should be a number bigger than zero");
-        if (noOfSeats <= 0) throw new IllegalArgumentException ("Number of seats should be a number bigger than zero");
+        if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
+        if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
 
         // Check if a table with the same number already exists
         if (tableRepository.existsById(tableNumber)) {
@@ -44,12 +46,12 @@ public class TableService implements TableServiceInterface {
 
     @Override
     public List<Table> getAllTables() {
-        return null;
+        return StreamSupport.stream(tableRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 
     @Override
-    public void removeTable(int tableNumber) {
-
+    public Table removeTable(int tableNumber) {
+return null;
     }
 
     @Override
