@@ -10,6 +10,9 @@ import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.model.Table;
 import uk.co.imperatives.exercise.repository.TableRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -158,6 +161,36 @@ public class TableServiceTests {
         });
 
         Assertions.assertEquals("Number of seats should be a number bigger than zero", thrown.getMessage());
+    }
+
+    @Test
+    void shouldReturnAllTables() {
+        // Arrange: Set up tables in the repository
+        List<Table> tablesInRepo = new ArrayList<>();
+        tablesInRepo.add(Table.builder().number(1).noOfSeats(4).noOfSeatsAllocated(0).version(1L).build());
+        tablesInRepo.add(Table.builder().number(2).noOfSeats(6).noOfSeatsAllocated(0).version(1L).build());
+        tablesInRepo.add(Table.builder().number(3).noOfSeats(2).noOfSeatsAllocated(2).version(2L).build());
+
+        // Mock the repository response
+        when(tableRepository.findAll()).thenReturn(tablesInRepo);
+
+        // Act: Call the service to get all tables
+        List<Table> result = tableService.getAllTables();
+
+        // Assert: Validate the result list
+        assertNotNull(result);
+        assertEquals(tablesInRepo.size(), result.size(), "The number of tables should match");
+
+        // Compare the content of each table
+        for (int i = 0; i < tablesInRepo.size(); i++) {
+            Table expectedTable = tablesInRepo.get(i);
+            Table actualTable = result.get(i);
+
+            assertEquals(expectedTable.getNumber(), actualTable.getNumber(), "Table number should match");
+            assertEquals(expectedTable.getNoOfSeats(), actualTable.getNoOfSeats(), "Number of seats should match");
+            assertEquals(expectedTable.getNoOfSeatsAllocated(), actualTable.getNoOfSeatsAllocated(), "Seats allocated should match");
+            assertEquals(expectedTable.getVersion(), actualTable.getVersion(), "Version should match");
+        }
     }
 
 }

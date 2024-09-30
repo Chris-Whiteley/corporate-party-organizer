@@ -16,11 +16,13 @@ public class TableService implements TableServiceInterface {
 
     private final TableRepository tableRepository;
 
+    @Override
     public Table addTable(int noOfSeats) {
         if (noOfSeats <= 0) throw new IllegalArgumentException ("Number of seats should be a number bigger than zero");
         return tableRepository.save(Table.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
+    @Override
     public Table addTable(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException ("Table number should be a number bigger than zero");
         if (noOfSeats <= 0) throw new IllegalArgumentException ("Number of seats should be a number bigger than zero");
@@ -40,6 +42,7 @@ public class TableService implements TableServiceInterface {
         return tableRepository.save(newTable);
     }
 
+    @Override
     public List<Table> getAllTables() {
         return null;
     }
