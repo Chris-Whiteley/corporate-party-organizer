@@ -193,4 +193,17 @@ public class TableServiceTests {
         }
     }
 
+    @Test
+    void shouldRemoveTable() {
+        Table expectedTable = Table.builder().number(3).noOfSeats(10).noOfSeatsAllocated(0).version(1L).build();
+
+        Table result = tableService.removeTable(3);
+        assertNotNull(result);
+        assertEquals(expectedTable.getNumber(), result.getNumber(), "Table number should match");
+        assertEquals(expectedTable.getNoOfSeats(), result.getNoOfSeats(), "Number of seats should match");
+        assertEquals(expectedTable.getNoOfSeatsAllocated(), result.getNoOfSeatsAllocated(), "Seats allocated should match");
+        assertEquals(expectedTable.getVersion(), result.getVersion(), "Version should match");
+
+    }
+
 }
