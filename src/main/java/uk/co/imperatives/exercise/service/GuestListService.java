@@ -6,24 +6,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.imperatives.exercise.exception.GuestNotFoundException;
 import uk.co.imperatives.exercise.exception.NoAvailabilityException;
-import uk.co.imperatives.exercise.model.Guest;
-import uk.co.imperatives.exercise.repository.GuestRepository;
+import uk.co.imperatives.exercise.model.GuestListEntry;
+import uk.co.imperatives.exercise.repository.GuestListEntryRepository;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GuestService {
-    private final GuestRepository guestRepository;
+public class GuestListService {
+    private final GuestListEntryRepository guestListEntryRepository;
     private final TableServiceInterface tableService;
 
     @Transactional
-    public Guest addGuest(AddGuestRequest request) {
+    public GuestListEntry addGuest(AddGuestRequest request) {
         // Check if the guest already exists
-        var existingGuestOptional = guestRepository.findById(request.getName());
+        var existingGuestOptional = guestListEntryRepository.findById(request.getName());
 
         // Build the guest to add
-        var guestToAddBuilder = Guest.builder()
+        var guestToAddBuilder = GuestListEntry.builder()
                 .name(request.getName())
                 .accompanyingGuests(request.getAccompanyingGuests());
 
@@ -51,7 +51,7 @@ public class GuestService {
         }
 
         try {
-            return guestRepository.save(guestToAddBuilder.build());
+            return guestListEntryRepository.save(guestToAddBuilder.build());
         } catch (OptimisticLockingFailureException e) {
             // handle the conflict, e.g., retry or notify the user
             return null;
@@ -59,33 +59,33 @@ public class GuestService {
     }
 
     @Transactional
-    public Guest updateName(String oldName, String newName) {
+    public GuestListEntry updateName(String oldName, String newName) {
         // Find the guest by the old name
-        Optional<Guest> existingGuestOpt = guestRepository.findById(oldName);
+        Optional<GuestListEntry> existingGuestOpt = guestListEntryRepository.findById(oldName);
 
         // Check if the guest exists, if not throw GuestNotFoundException
         if (existingGuestOpt.isEmpty()) {
-            throw new GuestNotFoundException("Guest with name " + oldName + " not found");
+            throw new GuestNotFoundException("GuestListEntry with name " + oldName + " not found");
         }
 
         // Retrieve the existing guest
-        Guest existingGuest = existingGuestOpt.get();
+        GuestListEntry existingGuestListEntry = existingGuestOpt.get();
 
         // Delete the guest with the old name
-        guestRepository.delete(existingGuest);
+        guestListEntryRepository.delete(existingGuestListEntry);
 
         // Create a new guest with the new name but keep other details the same
-        Guest updatedGuest = Guest.builder()
+        GuestListEntry updatedGuestListEntry = GuestListEntry.builder()
                 .name(newName)
-                .table(existingGuest.getTable())
-                .accompanyingGuests(existingGuest.getAccompanyingGuests())
+                .table(existingGuestListEntry.getTable())
+                .accompanyingGuests(existingGuestListEntry.getAccompanyingGuests())
                 .build();
 
         // Save the new guest
-        guestRepository.save(updatedGuest);
+        guestListEntryRepository.save(updatedGuestListEntry);
 
         // Return the newly created guest
-        return updatedGuest;
+        return updatedGuestListEntry;
     }
 
     private void throwNoAvailabilityException(AddGuestRequest request) {

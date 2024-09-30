@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Version;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "name")
-public class Guest {
+public class GuestListEntry {
     @Id
     private String name;
     private int table;
