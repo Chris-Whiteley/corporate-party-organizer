@@ -23,14 +23,14 @@ public class PartyTableService implements PartyTableServiceInterface {
     @Override
     public PartyTable addTable(int noOfSeats) {
         if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
-        
+
         // find next free table number
         int tableNo = 1;
-        
+
         while (partyTableRepository.existsById(tableNo)) {
             tableNo++;
         }
-        
+
         return partyTableRepository.save(PartyTable.builder().number(tableNo).noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
@@ -117,4 +117,18 @@ public class PartyTableService implements PartyTableServiceInterface {
 
         return table.getUnAllocatedSeats() >= noOfSeats;
     }
+
+    @Override
+    public boolean tableExists(int tableNumber) {
+        if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
+        return partyTableRepository.existsById(tableNumber);
+    }
+
+    @Override
+    public int getTotalEmptySeats() {
+        return StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
+                .mapToInt(PartyTable::getUnAllocatedSeats)
+                .sum();
+    }
+
 }

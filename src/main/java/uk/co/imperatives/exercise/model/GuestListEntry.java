@@ -30,6 +30,9 @@ public class GuestListEntry {
     @Column(name = "time_arrived")
     private LocalDateTime timeArrived;
 
+    @Column(name = "time_left")
+    private LocalDateTime timeLeft;
+
     private int accompanyingGuests;
     @Version
     private Long version;
@@ -40,5 +43,9 @@ public class GuestListEntry {
 
     public void recordTimeArrived() {
         this.timeArrived = LocalDateTime.now();
+    }
+
+    public void recordTimeLeft() {
+        this.timeLeft = LocalDateTime.now();
     }
 }

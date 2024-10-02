@@ -20,5 +20,9 @@ public interface PartyTableServiceInterface {
     void increaseOccupancy(int table, int noOfSeats);
 
     boolean hasAvailability(int table, int noOfSeats);
+
+    boolean tableExists(int tableNumber);
+
+    int getTotalEmptySeats();
 }
 

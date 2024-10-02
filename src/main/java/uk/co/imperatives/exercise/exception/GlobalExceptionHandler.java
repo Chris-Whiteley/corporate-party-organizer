@@ -1,6 +1,7 @@
 package uk.co.imperatives.exercise.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -17,6 +18,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<String> handleEOptimisticLockingFailureException(OptimisticLockingFailureException e) {
+        String message = "Database locking error, someone else has updated this record, please try again!";
+        return new ResponseEntity<>(message, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(TableAlreadyExistsException.class)

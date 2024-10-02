@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.co.imperatives.exercise.dto.AddTableRequest;
 import uk.co.imperatives.exercise.dto.PartyTableDto;
 import uk.co.imperatives.exercise.model.PartyTable;
-import uk.co.imperatives.exercise.service.PartyTableService;
+import uk.co.imperatives.exercise.service.PartyTableServiceInterface;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartyTableController {
 
-    private final PartyTableService partyTableService;
+    private final PartyTableServiceInterface partyTableService;
 
 
     @Operation(summary = "Add a new table", description = "Creates a new party table. Requires the number of seats, " +
