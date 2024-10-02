@@ -32,14 +32,16 @@ public class PartyTableServiceTests {
 
     @Test
     void shouldAddTableAndAssignTableNumber() {
-        PartyTable tableToAdd = PartyTable.builder().noOfSeats(6).noOfSeatsAllocated(0).build();
-        PartyTable returnedTable = PartyTable.builder().number(1).noOfSeats(6).noOfSeatsAllocated(0).version(0L).build();
+        PartyTable returnedTable = PartyTable.builder().number(2).noOfSeats(6).noOfSeatsAllocated(0).build();
+
+        when(partyTableRepository.existsById(1)).thenReturn(true);
+        when(partyTableRepository.existsById(2)).thenReturn(false);
 
         when(partyTableRepository.save(argThat(table ->
-                table.getNumber() == null &&
-                        table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
-                        table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
-                        table.getVersion() == null
+                table.getNumber().equals(returnedTable.getNumber()) &&
+                        table.getNoOfSeats() == returnedTable.getNoOfSeats() &&
+                        table.getNoOfSeatsAllocated() == returnedTable.getNoOfSeatsAllocated() &&
+                        table.getVersion().equals(returnedTable.getVersion())
         ))).thenReturn(returnedTable);
 
         // Call the service to add the table
@@ -65,7 +67,7 @@ public class PartyTableServiceTests {
                 table.getNumber().equals(tableToAdd.getNumber()) &&
                         table.getNoOfSeats() == tableToAdd.getNoOfSeats() &&
                         table.getNoOfSeatsAllocated() == tableToAdd.getNoOfSeatsAllocated() &&
-                        table.getVersion() == null
+                        table.getVersion().equals(tableToAdd.getVersion())
         ))).thenReturn(returnedTable);
 
         var tableNumber = 10;

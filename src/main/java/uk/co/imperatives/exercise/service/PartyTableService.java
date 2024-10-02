@@ -23,7 +23,15 @@ public class PartyTableService implements PartyTableServiceInterface {
     @Override
     public PartyTable addTable(int noOfSeats) {
         if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
-        return partyTableRepository.save(PartyTable.builder().noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
+        
+        // find next free table number
+        int tableNo = 1;
+        
+        while (partyTableRepository.existsById(tableNo)) {
+            tableNo++;
+        }
+        
+        return partyTableRepository.save(PartyTable.builder().number(tableNo).noOfSeats(noOfSeats).noOfSeatsAllocated(0).build());
     }
 
     @Override

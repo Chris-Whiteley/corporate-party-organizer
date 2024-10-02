@@ -15,13 +15,13 @@ import org.springframework.data.annotation.Version;
 @EqualsAndHashCode(of = "number")
 public class PartyTable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "table_seq")
-    @SequenceGenerator(name = "table_seq", sequenceName = "table_sequence", allocationSize = 1)
     private Integer number;
     private int noOfSeats;
     private int noOfSeatsAllocated;
+
+    @Builder.Default
     @Version
-    private Long version;
+    private Long version = 0L;
 
     public int getUnAllocatedSeats() {
         return noOfSeatsAllocated - noOfSeats;
