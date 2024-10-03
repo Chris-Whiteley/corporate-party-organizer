@@ -1,12 +1,12 @@
-# Corporate Party Organizer Microservice
+# Corporate Party Organiser Microservice
 
 ## Overview
-This is a Spring Boot microservice designed to organize corporate parties by managing a guest list and tracking seating. The project implements a RESTful API for managing guests, their table assignments, and available seats.
+This is a Spring Boot microservice designed to organise corporate parties by managing a guest list and tracking seating. The project implements a RESTful API for managing guests, their table assignments, and available seats.
 
 ## Requirements Met
 - Guests can be added to the guest list with or without table assignments.
 - The system ensures guests can only sit at tables with sufficient seating.
-- Arrivals and departures of guests (and their accompanying friends) are handled.
+- Arrivals and departures of guests (and their accompanying guests) are handled.
 - Tracks the number of empty seats in real-time.
 - All requirements are covered by tests.
 
@@ -22,6 +22,7 @@ The development process followed an Agile-like methodology by breaking the proje
 Each task was committed to version control with meaningful, descriptive commit messages.
 
 ### User Stories - Table Management
+Note. Table Management was not specified in the Java Exercise's Sample API Guide but I have added it for completeness as table assignment and available seating for guests needs to be checked. 
 ### User Story
 **As an organiser,** I want to add a table with a specified number of seats so that I can expand seating capacity for the event.
 
@@ -33,7 +34,7 @@ Each task was committed to version control with meaningful, descriptive commit m
 ---
 
 ### User Story
-**As an organiser,** I want to add a table with a specific table number and number of seats so that I can control table assignments for certain guests.
+**As an organiser,** I want to add a table with a specific table number and number of seats so that I can control table number assignment if I wish to.
 
 ### Acceptance Criteria:
 - The organiser can add a table by providing both a table number and the number of seats.
@@ -76,7 +77,7 @@ Each task was committed to version control with meaningful, descriptive commit m
 ### Acceptance Criteria:
 - The organiser can add a guest to the guest list by providing a name, table number, and the number of accompanying guests.
 - The system will allow adding a guest more than once by updating the previous entry. This allows the organiser to modify the guest’s table or accompanying guests.
-- If no table number is provided, the system should automatically assign the guest to the next available table.
+- If no table number is provided, the system should automatically assign a table, which has the required available seating, to the guest.
 - The organiser can add a guest even if they have no accompanying guests.
 - The organiser can add multiple guests to the same table.
 
@@ -101,8 +102,8 @@ Each task was committed to version control with meaningful, descriptive commit m
 **Empty or Missing Fields:**
 - If the guest name is missing or blank, the system should reject the entry and display an error message.
 
-**Zero or Negative Accompanying Guests:**
-- The system should handle cases where accompanying guests are zero or negative by either rejecting or correcting the input.
+**Negative Accompanying Guests:**
+- The system should handle cases where accompanying guests is negative by either rejecting or correcting the input.
 
 **Case Sensitivity:**
 - The system should decide whether guest names are case-sensitive or case-insensitive to avoid duplicate entries (e.g., "John Doe" vs. "john doe").
@@ -129,9 +130,9 @@ mvn spring-boot:run
 ## Assumptions
 
 - **Table Management**: The system includes table management, allowing for the dynamic creation and adjustment of tables and their seating capacities.
-- **Table id**: Tables are identified with a positive integer number
+- **Table number**: Tables are identified with a positive integer number
 
 ## Future Improvements
 
 - **Guest Name**: Is this enough to identify a guest?  Could get duplication using just their name.
-- **Can only do one party**: Currently Can only set up one party.  What if you want to organise more than one. Perhaps have ability to set up more than one party and specify the location (venue).  Then tables would be for a particular venue.  A party would have a date and a venue.  Also perhaps have the ability to create invites.  This would make the application more complicated and the table primary keys would change.
+- **Can only do one party**: Currently Can only set up one party.  What if you want to organise more than one. Perhaps have ability to set up more than one party and specify the location (venue) and date.  Then tables would be for a particular venue.  A party would have a date and a venue.  Also perhaps have the ability to create invites.  This would make the application more complicated and the table primary keys would change.  Alternatively, add the extra party information as configuration and just run up a new microservice.

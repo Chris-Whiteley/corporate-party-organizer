@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = ExerciseApplication.class)
 @AutoConfigureMockMvc
 class PartyTableControllerIT {
-    private static final String API_URL = "/api/party_tables";
+    private static final String URL = "/party_tables";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -45,7 +45,7 @@ class PartyTableControllerIT {
 
     @Test
     void testAddTableWithGivenNumber() throws Exception {
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .content(objectMapper.writeValueAsString(addTableRequest)))
@@ -61,7 +61,7 @@ class PartyTableControllerIT {
         addTableRequest.setTableNumber(1);
         addTableRequest.setNoOfSeats(6);
 
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addTableRequest)))
                 .andExpect(status().isCreated());
@@ -70,7 +70,7 @@ class PartyTableControllerIT {
         addTableRequest.setTableNumber(3);
         addTableRequest.setNoOfSeats(6);
 
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addTableRequest)))
                 .andExpect(status().isCreated());
@@ -79,7 +79,7 @@ class PartyTableControllerIT {
         addTableRequest.setTableNumber(4);
         addTableRequest.setNoOfSeats(6);
 
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addTableRequest)))
                 .andExpect(status().isCreated());
@@ -88,7 +88,7 @@ class PartyTableControllerIT {
         addTableRequest = new AddTableRequest();
         addTableRequest.setNoOfSeats(10);
 
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .content(objectMapper.writeValueAsString(addTableRequest)))
@@ -100,7 +100,7 @@ class PartyTableControllerIT {
         addTableRequest = new AddTableRequest();
         addTableRequest.setNoOfSeats(8);
 
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("utf-8")
                         .content(objectMapper.writeValueAsString(addTableRequest)))
@@ -112,12 +112,12 @@ class PartyTableControllerIT {
     @Test
     void testGetAllTables() throws Exception {
         // First add a table before fetching
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addTableRequest)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get(API_URL))
+        mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(greaterThan(0))));
     }
@@ -125,13 +125,13 @@ class PartyTableControllerIT {
     @Test
     void testRemoveTable() throws Exception {
         // First add a table
-        mockMvc.perform(post(API_URL)
+        mockMvc.perform(post(URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addTableRequest)))
                 .andExpect(status().isCreated());
 
         // Now remove the table
-        mockMvc.perform(delete(API_URL + "/1"))
+        mockMvc.perform(delete(URL + "/1"))
                 .andExpect(status().isNoContent());
     }
 }
