@@ -1,6 +1,5 @@
 package uk.co.imperatives.exercise.exception;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +14,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
+    @ExceptionHandler(TableNotFoundException.class)
+    public ResponseEntity<String> handleTableNotFoundException(TableNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)
-    public ResponseEntity<String> handleEOptimisticLockingFailureException(OptimisticLockingFailureException e) {
+    public ResponseEntity<String> handleOptimisticLockingFailureException(OptimisticLockingFailureException e) {
         String message = "Database locking error, someone else has updated this record, please try again!";
         return new ResponseEntity<>(message, HttpStatus.CONFLICT);
     }
@@ -33,6 +32,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(TableInUseException.class)
     public ResponseEntity<String> handleTableInUseException(TableInUseException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(GuestNotFoundException.class)
+    public ResponseEntity<String> handleGuestNotFoundException(GuestNotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GuestAlreadyExistsException.class)
+    public ResponseEntity<String> handleGuestAlreadyExistsException(GuestAlreadyExistsException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(GuestHasLeftException.class)
+    public ResponseEntity<String> handleGuestHasLeftException(GuestHasLeftException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 

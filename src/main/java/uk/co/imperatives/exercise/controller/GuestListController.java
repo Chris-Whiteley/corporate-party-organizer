@@ -12,6 +12,8 @@ import uk.co.imperatives.exercise.service.AddGuestRequest;
 import uk.co.imperatives.exercise.service.GuestListServiceInterface;
 import uk.co.imperatives.exercise.service.PartyTableServiceInterface;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,10 +112,20 @@ public class GuestListController {
         return GuestListEntryDto.builder()
                 .name(guestListEntry.getName())
                 .tableNumber(guestListEntry.getTableNumber())
-                .timeArrived(guestListEntry.getTimeArrived())
+                .timeArrived(formatLocalDateTime(guestListEntry.getTimeArrived()))
+                .timeLeft(formatLocalDateTime(guestListEntry.getTimeLeft()))
                 .accompanyingGuests(guestListEntry.getAccompanyingGuests())
                 .build();
     }
+
+    private String formatLocalDateTime(LocalDateTime dateTime) {
+        if (dateTime != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            return dateTime.format(formatter);
+        }
+        return "";  // Return an empty string if dateTime is null
+    }
+
 
     private AddGuestRequest toAddGuestRequest (AddGuestRequestDto dto) {
         return AddGuestRequest

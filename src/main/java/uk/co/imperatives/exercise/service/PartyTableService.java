@@ -1,11 +1,12 @@
 package uk.co.imperatives.exercise.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.TableInUseException;
+import uk.co.imperatives.exercise.exception.TableNotFoundException;
 import uk.co.imperatives.exercise.model.PartyTable;
 import uk.co.imperatives.exercise.repository.PartyTableRepository;
 
@@ -21,6 +22,7 @@ public class PartyTableService implements PartyTableServiceInterface {
     private final PartyTableRepository partyTableRepository;
 
     @Override
+    @Transactional
     public PartyTable addTable(int noOfSeats) {
         if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
 
@@ -35,6 +37,7 @@ public class PartyTableService implements PartyTableServiceInterface {
     }
 
     @Override
+    @Transactional
     public PartyTable addTable(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
         if (noOfSeats <= 0) throw new IllegalArgumentException("Number of seats should be a number bigger than zero");
@@ -55,16 +58,18 @@ public class PartyTableService implements PartyTableServiceInterface {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PartyTable> getAllTables() {
         return StreamSupport.stream(partyTableRepository.findAll().spliterator(), false).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public void removeTable(int tableNumber) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
         PartyTable table = partyTableRepository.findById(tableNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
+                .orElseThrow(() -> new TableNotFoundException("Table with number " + tableNumber + " not found"));
 
         // Check if the table has allocated seats
         if (table.getNoOfSeatsAllocated() > 0) {
@@ -76,6 +81,7 @@ public class PartyTableService implements PartyTableServiceInterface {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int getTableWithAvailableSeating(int noOfSeats) {
         var tableOptional =
                 StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
@@ -86,11 +92,12 @@ public class PartyTableService implements PartyTableServiceInterface {
     }
 
     @Override
+    @Transactional
     public void decreaseOccupancy(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
         PartyTable table = partyTableRepository.findById(tableNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
+                .orElseThrow(() -> new TableNotFoundException("Table with number " + tableNumber + " not found"));
 
         table.setNoOfSeatsAllocated(table.getNoOfSeatsAllocated() - noOfSeats);
         partyTableRepository.save(table);
@@ -98,34 +105,44 @@ public class PartyTableService implements PartyTableServiceInterface {
     }
 
     @Override
+    @Transactional
     public void increaseOccupancy(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
         PartyTable table = partyTableRepository.findById(tableNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
+                .orElseThrow(() -> new TableNotFoundException("Table with number " + tableNumber + " not found"));
 
         table.setNoOfSeatsAllocated(table.getNoOfSeatsAllocated() + noOfSeats);
         partyTableRepository.save(table);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean hasAvailability(int tableNumber, int noOfSeats) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
 
         PartyTable table = partyTableRepository.findById(tableNumber)
-                .orElseThrow(() -> new EntityNotFoundException("Table with number " + tableNumber + " not found"));
+                .orElseThrow(() -> new TableNotFoundException("Table with number " + tableNumber + " not found"));
 
         return table.getUnAllocatedSeats() >= noOfSeats;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean tableExists(int tableNumber) {
         if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
         return partyTableRepository.existsById(tableNumber);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int getTotalEmptySeats() {
+        var tableList =
+                StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
+                        .toList();
+
+        log.debug("{}", tableList);
+
         return StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
                 .mapToInt(PartyTable::getUnAllocatedSeats)
                 .sum();

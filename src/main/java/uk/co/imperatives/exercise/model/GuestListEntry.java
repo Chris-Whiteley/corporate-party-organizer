@@ -7,7 +7,6 @@ import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.data.annotation.Version;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -33,6 +32,7 @@ public class GuestListEntry {
     @Column(name = "time_left")
     private LocalDateTime timeLeft;
 
+    @Setter
     private int accompanyingGuests;
     @Version
     private Long version;
@@ -47,5 +47,9 @@ public class GuestListEntry {
 
     public void recordTimeLeft() {
         this.timeLeft = LocalDateTime.now();
+    }
+
+    public boolean hasLeft() {
+        return this.timeLeft != null;
     }
 }

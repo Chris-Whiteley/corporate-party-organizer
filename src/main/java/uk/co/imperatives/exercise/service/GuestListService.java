@@ -1,13 +1,10 @@
 package uk.co.imperatives.exercise.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.imperatives.exercise.dto.GuestsAtTable;
-import uk.co.imperatives.exercise.exception.GuestNotFoundException;
-import uk.co.imperatives.exercise.exception.NameValidationError;
-import uk.co.imperatives.exercise.exception.NoAvailabilityException;
+import uk.co.imperatives.exercise.exception.*;
 import uk.co.imperatives.exercise.model.GuestListEntry;
 import uk.co.imperatives.exercise.repository.GuestListEntryRepository;
 import uk.co.imperatives.exercise.validation.NameValidator;
@@ -36,16 +33,23 @@ public class GuestListService implements GuestListServiceInterface {
         // Handle existing guest case
         if (existingGuestOptional.isPresent()) {
             var existingGuest = existingGuestOptional.get();
-            // Temporarily remove places from the table
+
+            if (existingGuest.hasLeft()) {
+                throw new GuestHasLeftException("Cannot update the information of a guest that has left the party");
+            }
+
+            // Temporarily remove existing guests from the table
             tableService.decreaseOccupancy(existingGuest.getTableNumber(), existingGuest.noOfGuests());
 
             // Get a suitable table with availability
             var tableWithAvailability = getTableWithAvailability(request.getTable(), request.noOfGuests());
             if (tableWithAvailability == 0) {
-                // No table with availability found, restore occupancy and throw exception
+                // No table with availability found, restore existing guests to table and throw exception
                 tableService.increaseOccupancy(existingGuest.getTableNumber(), existingGuest.noOfGuests());
                 throwNoAvailabilityException(request);
             }
+
+            tableService.increaseOccupancy(request.getTable(), request.noOfGuests());
             guestToAddBuilder.tableNumber(tableWithAvailability);
         } else {
             // Handle new guest case
@@ -53,6 +57,7 @@ public class GuestListService implements GuestListServiceInterface {
             if (tableWithAvailability == 0) {
                 throwNoAvailabilityException(request);
             }
+            tableService.increaseOccupancy(request.getTable(), request.noOfGuests());
             guestToAddBuilder.tableNumber(tableWithAvailability);
         }
 
@@ -73,9 +78,13 @@ public class GuestListService implements GuestListServiceInterface {
         // Find the guest by the old name
         Optional<GuestListEntry> existingGuestOpt = guestListEntryRepository.findById(oldName);
 
-        // Check if the guest exists, if not throw GuestNotFoundException
         if (existingGuestOpt.isEmpty()) {
             throw new GuestNotFoundException("Guest with name " + oldName + " not found");
+        }
+
+        // check if the newName is already being used by an existing guest
+        if (guestListEntryRepository.existsById(newName)) {
+            throw new GuestAlreadyExistsException("Guest with name " + newName + " already exists");
         }
 
         // Retrieve the existing guest
@@ -89,6 +98,8 @@ public class GuestListService implements GuestListServiceInterface {
                 .name(newName)
                 .tableNumber(existingGuestListEntry.getTableNumber())
                 .accompanyingGuests(existingGuestListEntry.getAccompanyingGuests())
+                .timeArrived(existingGuestListEntry.getTimeArrived())
+                .timeLeft(existingGuestListEntry.getTimeLeft())
                 .build();
 
         // Save the new guest
@@ -117,7 +128,10 @@ public class GuestListService implements GuestListServiceInterface {
 
         var existingGuestEntry = existingGuestOpt.get();
 
-        tableService.increaseOccupancy(existingGuestEntry.getTableNumber(), existingGuestEntry.noOfGuests());
+        if (!existingGuestEntry.hasLeft()) {
+            tableService.decreaseOccupancy(existingGuestEntry.getTableNumber(), existingGuestEntry.noOfGuests());
+        }
+
         guestListEntryRepository.deleteById(guestName);
     }
 
@@ -126,7 +140,7 @@ public class GuestListService implements GuestListServiceInterface {
     public GuestListEntry recordGuestArrival(String guestName, int accompanyingGuests) {
         Optional<GuestListEntry> existingGuestOpt = guestListEntryRepository.findById(guestName);
 
-        // Check if the guest exists, if not throw GuestNotFoundException
+        // Check if the guest exists
         if (existingGuestOpt.isEmpty()) {
             throw new GuestNotFoundException("Guest with name " + guestName + " not found");
         }
@@ -146,6 +160,7 @@ public class GuestListService implements GuestListServiceInterface {
             tableService.decreaseOccupancy(existingGuestEntry.getTableNumber(), decreaseInGuests);
         }
 
+        existingGuestEntry.setAccompanyingGuests(accompanyingGuests);
         existingGuestEntry.recordTimeArrived();
         return guestListEntryRepository.save(existingGuestEntry);
     }
@@ -168,10 +183,17 @@ public class GuestListService implements GuestListServiceInterface {
             throw new GuestNotFoundException("Guest with name " + guestName + " not found");
         }
 
+
         var existingGuestEntry = existingGuestOpt.get();
-        tableService.increaseOccupancy(existingGuestEntry.getTableNumber(), existingGuestEntry.noOfGuests());
-        existingGuestEntry.recordTimeLeft();
-        return guestListEntryRepository.save(existingGuestEntry);
+
+        // Check guest has not already been recorded as left
+        if (!existingGuestEntry.hasLeft()) {
+            tableService.increaseOccupancy(existingGuestEntry.getTableNumber(), existingGuestEntry.noOfGuests());
+            existingGuestEntry.recordTimeLeft();
+            return guestListEntryRepository.save(existingGuestEntry);
+        } else {
+            return existingGuestEntry;
+        }
     }
 
     @Override
@@ -181,8 +203,10 @@ public class GuestListService implements GuestListServiceInterface {
 
         guestListEntryRepository.findAll()
                 .forEach(guestListEntry -> {
-                    var guestsAtTable = tableGuestsMap.computeIfAbsent(guestListEntry.getTableNumber(), k -> new ArrayList<>());
-                    guestsAtTable.add(guestListEntry.getName());
+                    if (!guestListEntry.hasLeft()) {
+                        var guestsAtTable = tableGuestsMap.computeIfAbsent(guestListEntry.getTableNumber(), k -> new ArrayList<>());
+                        guestsAtTable.add(guestListEntry.getName());
+                    }
                 });
 
         // Add blank entries for empty tables
@@ -206,12 +230,13 @@ public class GuestListService implements GuestListServiceInterface {
     @Transactional(readOnly = true)
     public GuestsAtTable getGuestsAtTable(int tableNumber) {
         if (!tableService.tableExists(tableNumber)) {
-            throw new EntityNotFoundException("Table with number " + tableNumber + " not found");
+            throw new TableNotFoundException("Table with number " + tableNumber + " not found");
         }
 
         List<String> guests =
                 StreamSupport.stream(guestListEntryRepository.findAll().spliterator(), false)
                         .filter(guestListEntry -> guestListEntry.getTableNumber() == tableNumber)
+                        .filter(guestListEntry -> !guestListEntry.hasLeft())
                         .map(GuestListEntry::getName)
                         .toList();
 

@@ -24,6 +24,6 @@ public class PartyTable {
     private Long version = 0L;
 
     public int getUnAllocatedSeats() {
-        return noOfSeatsAllocated - noOfSeats;
+        return noOfSeats - noOfSeatsAllocated;
     }
 }
