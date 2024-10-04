@@ -57,7 +57,7 @@ public class GuestListService implements GuestListServiceInterface {
             if (tableWithAvailability == 0) {
                 throwNoAvailabilityException(request);
             }
-            tableService.increaseOccupancy(request.getTable(), request.noOfGuests());
+            tableService.increaseOccupancy(tableWithAvailability, request.noOfGuests());
             guestToAddBuilder.tableNumber(tableWithAvailability);
         }
 

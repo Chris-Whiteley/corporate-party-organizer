@@ -34,8 +34,10 @@ public class GuestListEntry {
 
     @Setter
     private int accompanyingGuests;
+
+    @Builder.Default
     @Version
-    private Long version;
+    private Long version = 0L;
 
     public int noOfGuests() {
         return accompanyingGuests + 1;

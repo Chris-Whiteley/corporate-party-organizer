@@ -114,18 +114,84 @@ Note. Table Management was not specified in the Java Exercise's Sample API Guide
 As a guest, I want to be able to arrive at a party with extra friends, so I can join if there is space.
 As an organiser, I want to see how many seats are available, so I can plan the event.
 
-## How to Run the Project
+## Running the Application
+
 ### Prerequisites
 - Java 21
 - Maven
-- Docker (if using containers)
-- PostgreSQL (if using PostgreSQL for persistence)
+- Docker
 
-### Running with Maven
-To run the application locally:
+Ensure **Docker Engine** is running to support the PostgreSQL database in the development profile.
+
+### Running with PostgreSQL (Development Profile)
+
+#### To run both the application and PostgreSQL in Docker containers, follow these steps:
+
+1. **Start the PostgreSQL and App Containers**  
+   Navigate to the project root directory and run:
+   ```bash
+   docker-compose up --build -d
+   ```
+   This will rebuild the application and start both the PostgreSQL and spring-app containers.
+
+2. **To view the application log**  
+   Use:
+   ```bash
+   docker logs spring-app
+   ```
+
+3. **Access the PostgreSQL Database via psql**  
+   You can interact with the running PostgreSQL database using `psql`:
+   ```bash
+   docker exec -it dev-postgres psql -U dev_user -d dev_party_db
+   ```
+
+4. **Shut Down the PostgreSQL and App Containers**  
+   To stop the containers, use:
+   ```bash
+   docker-compose down
+   ```
+
+#### To run the application locally and PostgreSQL in a Docker container, follow these steps:
+
+1. **Start the PostgreSQL Container**  
+   Navigate to the project root directory and run:
+   ```bash
+   docker-compose up -d postgres
+   ```
+   This command will start the PostgreSQL container in detached mode.
+
+2. **Run the Microservice locally**  
+   To start the microservice locally using the `dev` profile (with PostgreSQL), run:
+   ```bash
+   ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+   ```
+
+### Running with H2 (Default Profile)
+
+If you prefer to use the default in-memory H2 database, simply run the following command:
 ```bash
 mvn spring-boot:run
 ```
+
+## Accessing the Microservice
+
+- The microservice is configured to run on **port 8090**.
+
+- To access the API documentation (Swagger UI), visit:
+  ```
+  http://localhost:8090/api-docs.html
+  ```
+  This documentation is available regardless of whether you're running with the default H2 database or the `dev` profile with PostgreSQL.
+
+  You can use this Swagger UI to explore and test the APIs. Alternatively, you can use tools like **curl** or **Postman**.
+
+## Development Information
+
+- **Default Profile**: Runs with an in-memory H2 database.
+- **Dev Profile**: Runs with a PostgreSQL database in a Docker container.
+
+This setup provides flexibility for different environments, and the application can be run locally with H2 or in development mode with PostgreSQL.
 
 ## Assumptions
 
@@ -135,4 +201,6 @@ mvn spring-boot:run
 ## Future Improvements
 
 - **Guest Name**: Is this enough to identify a guest?  Could get duplication using just their name.
+- **Guest and friends can only have one table**: This could be a limitation for a large group if they could fit in over more than one table.
 - **Can only do one party**: Currently Can only set up one party.  What if you want to organise more than one. Perhaps have ability to set up more than one party and specify the location (venue) and date.  Then tables would be for a particular venue.  A party would have a date and a venue.  Also perhaps have the ability to create invites.  This would make the application more complicated and the table primary keys would change.  Alternatively, add the extra party information as configuration and just run up a new microservice.
+- **Table Plan**: Could provide visual layout of the tables for guests to decide which table they would like.

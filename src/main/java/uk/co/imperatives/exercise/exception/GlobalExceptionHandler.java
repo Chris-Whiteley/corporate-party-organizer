@@ -25,6 +25,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(NoAvailabilityException.class)
+    public ResponseEntity<String> handleTableAlreadyExistsException(NoAvailabilityException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(TableAlreadyExistsException.class)
     public ResponseEntity<String> handleTableAlreadyExistsException(TableAlreadyExistsException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);

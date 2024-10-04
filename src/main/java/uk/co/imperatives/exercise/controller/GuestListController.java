@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.co.imperatives.exercise.dto.AddGuestRequestDto;
+import uk.co.imperatives.exercise.dto.GuestArrivalDto;
 import uk.co.imperatives.exercise.dto.GuestListEntryDto;
 import uk.co.imperatives.exercise.dto.GuestsAtTable;
 import uk.co.imperatives.exercise.model.GuestListEntry;
@@ -33,7 +34,8 @@ public class GuestListController {
     private final GuestListServiceInterface guestListService;
     private final PartyTableServiceInterface partyTableService;
 
-    @Operation(summary = "Add a new guest", description = "Registers a new guest and assigns them to a table.")
+    @Operation(summary = "Add a new guest", description = "Registers a new guest and assigns them to a table." +
+    " If Supplied table is 0 the system will attempt to find an available table.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Guest added successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
@@ -90,7 +92,7 @@ public class GuestListController {
             @ApiResponse(responseCode = "404", description = "Guest not found")
     })
     @PutMapping("/guests")
-    public ResponseEntity<GuestListEntryDto> recordGuestArrival(@RequestBody AddGuestRequestDto request) {
+    public ResponseEntity<GuestListEntryDto> recordGuestArrival(@RequestBody GuestArrivalDto request) {
         GuestListEntry updatedGuest = guestListService.recordGuestArrival(request.getName(), request.getAccompanyingGuests());
         return ResponseEntity.ok(toDto(updatedGuest));
     }
