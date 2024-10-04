@@ -13,6 +13,8 @@ services:
       - postgres
     networks:
       - my-network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # Mount local timezone config
 
   postgres:
     image: postgres:13
@@ -21,6 +23,7 @@ services:
       POSTGRES_USER: dev_user
       POSTGRES_PASSWORD: dev_password
       POSTGRES_DB: dev_party_db
+      TZ: Europe/London  # Set container timezone to BST
     ports:
       - "5432:5432"
     volumes:
