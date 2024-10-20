@@ -182,11 +182,17 @@ public class GuestListControllerIT {
         // Perform the GET request to retrieve guests at all tables
         mockMvc.perform(get("/party_tables/guests_at_table"))
                 .andExpect(status().isOk())
+                // Check the first table's number and the guest details
                 .andExpect(jsonPath("$[0].tableNumber").value(1))
-                .andExpect(jsonPath("$[0].guests[0]").value("Betty Boop"))
+                .andExpect(jsonPath("$[0].guests[0].name").value("Betty Boop"))
+                .andExpect(jsonPath("$[0].guests[0].accompanyingGuests").value(1))
+                .andExpect(jsonPath("$[0].guests[0].timeArrived").isEmpty())
+                .andExpect(jsonPath("$[0].guests[0].timeLeft").isEmpty())  // Assuming the guest hasn't left yet
+                // Check the second table's number and that it has no guests
                 .andExpect(jsonPath("$[1].tableNumber").value(2))
                 .andExpect(jsonPath("$[1].guests").isEmpty());
     }
+
 
     @Test
     public void getArrivedGuestsShouldReturnOk() throws Exception {

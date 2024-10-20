@@ -11,5 +11,5 @@ import java.util.Collection;
 public class GuestsAtTable {
     private int tableNumber;
     @Singular
-    private Collection<String> guests;
+    private Collection<GuestListEntryDto> guests;
 }

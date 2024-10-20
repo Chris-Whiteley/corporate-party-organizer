@@ -41,7 +41,7 @@ public class GuestListController {
     @PostMapping("/guest_list")
     public ResponseEntity<GuestListEntryDto> addGuest(@RequestBody AddGuestRequestDto request) {
         GuestListEntry addedGuest = guestListService.addGuest(toAddGuestRequest(request));
-        return new ResponseEntity<>(toDto(addedGuest), HttpStatus.CREATED);
+        return new ResponseEntity<>(GuestListEntryDto.toDto(addedGuest), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update a guest's name", description = "Updates the name of an existing guest.")
@@ -55,7 +55,7 @@ public class GuestListController {
             @Parameter(description = "The current name of the guest") @PathVariable String oldName,
             @Parameter(description = "The new name to update") @RequestParam String newName) {
         GuestListEntry updatedGuest = guestListService.updateName(oldName, newName);
-        return ResponseEntity.ok(toDto(updatedGuest));
+        return ResponseEntity.ok(GuestListEntryDto.toDto(updatedGuest));
     }
 
     @Operation(summary = "Get all guests", description = "Fetches the entire guest list.")
@@ -67,7 +67,7 @@ public class GuestListController {
         List<GuestListEntryDto> guestList =
                 guestListService.getAllGuests()
                         .stream()
-                        .map(this::toDto)
+                        .map(GuestListEntryDto::toDto)
                         .collect(Collectors.toList());
         return ResponseEntity.ok(guestList);
     }
@@ -92,7 +92,7 @@ public class GuestListController {
     @PutMapping("/guests")
     public ResponseEntity<GuestListEntryDto> recordGuestArrival(@RequestBody GuestArrivalDto request) {
         GuestListEntry updatedGuest = guestListService.recordGuestArrival(request.getName(), request.getAccompanyingGuests());
-        return ResponseEntity.ok(toDto(updatedGuest));
+        return ResponseEntity.ok(GuestListEntryDto.toDto(updatedGuest));
     }
 
 
@@ -106,7 +106,7 @@ public class GuestListController {
     public ResponseEntity<GuestListEntryDto> recordGuestLeaving(
             @Parameter(description = "The name of the guest leaving") @PathVariable String guestName) {
         GuestListEntry updatedGuest = guestListService.recordGuestLeft(guestName);
-        return ResponseEntity.ok(toDto(updatedGuest));
+        return ResponseEntity.ok(GuestListEntryDto.toDto(updatedGuest));
     }
 
     @Operation(summary = "Get guests who have arrived", description = "Retrieves a list of guests who have already arrived at the party.")
@@ -117,27 +117,9 @@ public class GuestListController {
     public ResponseEntity<List<GuestListEntryDto>> getArrivedGuests() {
         List<GuestListEntry> arrivedGuests = guestListService.getArrivedGuests();
         List<GuestListEntryDto> arrivedGuestDtos = arrivedGuests.stream()
-                .map(this::toDto)
+                .map(GuestListEntryDto::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(arrivedGuestDtos);
-    }
-
-    private GuestListEntryDto toDto(GuestListEntry guestListEntry) {
-        return GuestListEntryDto.builder()
-                .name(guestListEntry.getName())
-                .tableNumber(guestListEntry.getTableNumber())
-                .timeArrived(formatLocalDateTime(guestListEntry.getTimeArrived()))
-                .timeLeft(formatLocalDateTime(guestListEntry.getTimeLeft()))
-                .accompanyingGuests(guestListEntry.getAccompanyingGuests())
-                .build();
-    }
-
-    private String formatLocalDateTime(LocalDateTime dateTime) {
-        if (dateTime != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            return dateTime.format(formatter);
-        }
-        return "";
     }
 
     private AddGuestRequest toAddGuestRequest(AddGuestRequestDto dto) {

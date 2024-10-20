@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.imperatives.exercise.dto.GuestListEntryDto;
 import uk.co.imperatives.exercise.dto.GuestsAtTable;
 import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.TableInUseException;
@@ -148,13 +149,13 @@ public class PartyTableService implements PartyTableServiceInterface {
     @Override
     @Transactional(readOnly = true)
     public List<GuestsAtTable> getGuestsAtAllTables() {
-        Map<Integer, Collection<String>> tableGuestsMap = new HashMap<>();
+        Map<Integer, Collection<GuestListEntryDto>> tableGuestsMap = new HashMap<>();
 
         guestListEntryRepository.findAll()
                 .forEach(guestListEntry -> {
                     if (!guestListEntry.hasLeft()) {
                         var guestsAtTable = tableGuestsMap.computeIfAbsent(guestListEntry.getTableNumber(), k -> new ArrayList<>());
-                        guestsAtTable.add(guestListEntry.getName());
+                        guestsAtTable.add(GuestListEntryDto.toDto(guestListEntry));
                     }
                 });
 
@@ -181,11 +182,11 @@ public class PartyTableService implements PartyTableServiceInterface {
             throw new TableNotFoundException("Table with number " + tableNumber + " not found");
         }
 
-        List<String> guests =
+        List<GuestListEntryDto> guests =
                 StreamSupport.stream(guestListEntryRepository.findAll().spliterator(), false)
                         .filter(guestListEntry -> guestListEntry.getTableNumber() == tableNumber)
                         .filter(guestListEntry -> !guestListEntry.hasLeft())
-                        .map(GuestListEntry::getName)
+                        .map(GuestListEntryDto::toDto)
                         .toList();
 
         return GuestsAtTable.builder().tableNumber(tableNumber).guests(guests).build();
