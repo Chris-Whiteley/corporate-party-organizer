@@ -12,19 +12,15 @@ import org.springframework.web.bind.annotation.*;
 import uk.co.imperatives.exercise.dto.AddGuestRequestDto;
 import uk.co.imperatives.exercise.dto.GuestArrivalDto;
 import uk.co.imperatives.exercise.dto.GuestListEntryDto;
-import uk.co.imperatives.exercise.dto.GuestsAtTable;
 import uk.co.imperatives.exercise.model.GuestListEntry;
 import uk.co.imperatives.exercise.service.AddGuestRequest;
 import uk.co.imperatives.exercise.service.GuestListServiceInterface;
-import uk.co.imperatives.exercise.service.PartyTableServiceInterface;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping
+@RequestMapping("/guest_list")
 @RequiredArgsConstructor
 @Tag(name = "Guest List", description = "APIs to manage guest list and tables at the party")
 public class GuestListController {
@@ -38,7 +34,7 @@ public class GuestListController {
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "409", description = "Guest already exists")
     })
-    @PostMapping("/guest_list")
+    @PostMapping
     public ResponseEntity<GuestListEntryDto> addGuest(@RequestBody AddGuestRequestDto request) {
         GuestListEntry addedGuest = guestListService.addGuest(toAddGuestRequest(request));
         return new ResponseEntity<>(GuestListEntryDto.toDto(addedGuest), HttpStatus.CREATED);
@@ -50,7 +46,7 @@ public class GuestListController {
             @ApiResponse(responseCode = "404", description = "Guest not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    @PutMapping("/guest_list/{oldName}/name")
+    @PutMapping("/{oldName}/name")
     public ResponseEntity<GuestListEntryDto> updateGuestName(
             @Parameter(description = "The current name of the guest") @PathVariable String oldName,
             @Parameter(description = "The new name to update") @RequestParam String newName) {
@@ -62,7 +58,7 @@ public class GuestListController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of guests retrieved successfully")
     })
-    @GetMapping("/guest_list")
+    @GetMapping
     public ResponseEntity<List<GuestListEntryDto>> getAllGuests() {
         List<GuestListEntryDto> guestList =
                 guestListService.getAllGuests()
@@ -77,7 +73,7 @@ public class GuestListController {
             @ApiResponse(responseCode = "204", description = "Guest deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Guest not found")
     })
-    @DeleteMapping("/guest_list/{guestName}")
+    @DeleteMapping("/{guestName}")
     public ResponseEntity<Void> deleteGuest(@Parameter(description = "The name of the guest to be deleted") @PathVariable String guestName) {
         guestListService.delete(guestName);
         return ResponseEntity.noContent().build();
@@ -89,7 +85,7 @@ public class GuestListController {
             @ApiResponse(responseCode = "400", description = "Invalid input: accompanying guests cannot be negative"),
             @ApiResponse(responseCode = "404", description = "Guest not found")
     })
-    @PutMapping("/guests")
+    @PutMapping("/arrive")
     public ResponseEntity<GuestListEntryDto> recordGuestArrival(@RequestBody GuestArrivalDto request) {
         GuestListEntry updatedGuest = guestListService.recordGuestArrival(request.getName(), request.getAccompanyingGuests());
         return ResponseEntity.ok(GuestListEntryDto.toDto(updatedGuest));
@@ -102,7 +98,7 @@ public class GuestListController {
             @ApiResponse(responseCode = "404", description = "Guest not found"),
             @ApiResponse(responseCode = "409", description = "Guest has not arrived or has already left")
     })
-    @PatchMapping("/guests/{guestName}/leave")
+    @PatchMapping("/{guestName}/leave")
     public ResponseEntity<GuestListEntryDto> recordGuestLeaving(
             @Parameter(description = "The name of the guest leaving") @PathVariable String guestName) {
         GuestListEntry updatedGuest = guestListService.recordGuestLeft(guestName);
@@ -113,7 +109,7 @@ public class GuestListController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of arrived guests retrieved successfully")
     })
-    @GetMapping("/guests")
+    @GetMapping("/arrived")
     public ResponseEntity<List<GuestListEntryDto>> getArrivedGuests() {
         List<GuestListEntry> arrivedGuests = guestListService.getArrivedGuests();
         List<GuestListEntryDto> arrivedGuestDtos = arrivedGuests.stream()

@@ -117,7 +117,7 @@ public class GuestListControllerIT {
         addGuestRequestDto.setAccompanyingGuests(3);
 
         // Perform the PUT request to record guest arrival
-        mockMvc.perform(put("/guests")
+        mockMvc.perform(put("/guest_list/arrive")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addGuestRequestDto)))
                 .andExpect(status().isOk())
@@ -163,7 +163,7 @@ public class GuestListControllerIT {
         guestArrivalDto.setName("Mickey Mouse");
         guestArrivalDto.setAccompanyingGuests(2);
 
-        mockMvc.perform(put("/guests")
+        mockMvc.perform(put("/guest_list/arrive")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(guestArrivalDto)))
                 .andExpect(status().isOk())
@@ -171,7 +171,7 @@ public class GuestListControllerIT {
                 .andExpect(jsonPath("$.timeArrived").isNotEmpty());
 
         // Now perform the PATCH request to record guest leaving
-        mockMvc.perform(patch("/guests/Mickey Mouse/leave"))
+        mockMvc.perform(patch("/guest_list/Mickey Mouse/leave"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Mickey Mouse"))
                 .andExpect(jsonPath("$.timeLeft").isNotEmpty());
@@ -202,13 +202,13 @@ public class GuestListControllerIT {
                         .content(objectMapper.writeValueAsString(addGuestRequestDto)))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(put("/guests")
+        mockMvc.perform(put("/guest_list/arrive")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(addGuestRequestDto)))
                 .andExpect(status().isOk());
 
         // Perform the GET request to retrieve only arrived guests
-        mockMvc.perform(get("/guests"))
+        mockMvc.perform(get("/guest_list/arrived"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Mickey Mouse"))
                 .andExpect(jsonPath("$[0].timeArrived").isNotEmpty());
