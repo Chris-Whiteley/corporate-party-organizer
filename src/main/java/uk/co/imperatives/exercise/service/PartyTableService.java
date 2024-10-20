@@ -4,13 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.imperatives.exercise.dto.GuestsAtTable;
 import uk.co.imperatives.exercise.exception.TableAlreadyExistsException;
 import uk.co.imperatives.exercise.exception.TableInUseException;
 import uk.co.imperatives.exercise.exception.TableNotFoundException;
+import uk.co.imperatives.exercise.model.GuestListEntry;
 import uk.co.imperatives.exercise.model.PartyTable;
+import uk.co.imperatives.exercise.repository.GuestListEntryRepository;
 import uk.co.imperatives.exercise.repository.PartyTableRepository;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -20,6 +23,7 @@ import java.util.stream.StreamSupport;
 public class PartyTableService implements PartyTableServiceInterface {
 
     private final PartyTableRepository partyTableRepository;
+    private final GuestListEntryRepository guestListEntryRepository;
 
     @Override
     @Transactional
@@ -129,13 +133,6 @@ public class PartyTableService implements PartyTableServiceInterface {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean tableExists(int tableNumber) {
-        if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
-        return partyTableRepository.existsById(tableNumber);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public int getTotalEmptySeats() {
         var tableList =
                 StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
@@ -146,6 +143,57 @@ public class PartyTableService implements PartyTableServiceInterface {
         return StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
                 .mapToInt(PartyTable::getUnAllocatedSeats)
                 .sum();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<GuestsAtTable> getGuestsAtAllTables() {
+        Map<Integer, Collection<String>> tableGuestsMap = new HashMap<>();
+
+        guestListEntryRepository.findAll()
+                .forEach(guestListEntry -> {
+                    if (!guestListEntry.hasLeft()) {
+                        var guestsAtTable = tableGuestsMap.computeIfAbsent(guestListEntry.getTableNumber(), k -> new ArrayList<>());
+                        guestsAtTable.add(guestListEntry.getName());
+                    }
+                });
+
+        // Add blank entries for empty tables
+        StreamSupport.stream(partyTableRepository.findAll().spliterator(), false)
+                .filter(partyTable -> partyTable.getNoOfSeatsAllocated() == 0)
+                .forEach(partyTable -> {
+                    if (!tableGuestsMap.containsKey(partyTable.getNumber())) {
+                        tableGuestsMap.put(partyTable.getNumber(), Collections.emptyList());
+                    }
+                });
+
+        return tableGuestsMap
+                .entrySet()
+                .stream()
+                .map(entry -> GuestsAtTable.builder().tableNumber(entry.getKey()).guests(entry.getValue()).build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public GuestsAtTable getGuestsAtTable(int tableNumber) {
+        if (!tableExists(tableNumber)) {
+            throw new TableNotFoundException("Table with number " + tableNumber + " not found");
+        }
+
+        List<String> guests =
+                StreamSupport.stream(guestListEntryRepository.findAll().spliterator(), false)
+                        .filter(guestListEntry -> guestListEntry.getTableNumber() == tableNumber)
+                        .filter(guestListEntry -> !guestListEntry.hasLeft())
+                        .map(GuestListEntry::getName)
+                        .toList();
+
+        return GuestsAtTable.builder().tableNumber(tableNumber).guests(guests).build();
+    }
+
+    private boolean tableExists(int tableNumber) {
+        if (tableNumber <= 0) throw new IllegalArgumentException("Table number should be a number bigger than zero");
+        return partyTableRepository.existsById(tableNumber);
     }
 
 }

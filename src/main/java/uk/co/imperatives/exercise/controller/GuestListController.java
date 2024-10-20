@@ -20,9 +20,7 @@ import uk.co.imperatives.exercise.service.PartyTableServiceInterface;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,7 +30,6 @@ import java.util.stream.Collectors;
 public class GuestListController {
 
     private final GuestListServiceInterface guestListService;
-    private final PartyTableServiceInterface partyTableService;
 
     @Operation(summary = "Add a new guest", description = "Registers a new guest and assigns them to a table." +
             " If Supplied table is 0 the system will attempt to find an available table.")
@@ -112,29 +109,6 @@ public class GuestListController {
         return ResponseEntity.ok(toDto(updatedGuest));
     }
 
-
-    @Operation(summary = "Get guests at all tables", description = "Retrieves a list of all guests at their respective tables.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of guests at tables retrieved successfully")
-    })
-    @GetMapping("/guests_at_table")
-    public ResponseEntity<List<GuestsAtTable>> getGuestsAtAllTables() {
-        List<GuestsAtTable> guestsAtTables = guestListService.getGuestsAtAllTables();
-        return ResponseEntity.ok(guestsAtTables);
-    }
-
-    @Operation(summary = "Get guests at a specific table", description = "Retrieves the guests seated at a specific table.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Guests at table retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Table not found")
-    })
-    @GetMapping("/guests_at_table/{tableNumber}")
-    public ResponseEntity<GuestsAtTable> getGuestsAtTable(
-            @Parameter(description = "The number of the table to retrieve guests from") @PathVariable int tableNumber) {
-        GuestsAtTable guestsAtTable = guestListService.getGuestsAtTable(tableNumber);
-        return ResponseEntity.ok(guestsAtTable);
-    }
-
     @Operation(summary = "Get guests who have arrived", description = "Retrieves a list of guests who have already arrived at the party.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of arrived guests retrieved successfully")
@@ -146,17 +120,6 @@ public class GuestListController {
                 .map(this::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(arrivedGuestDtos);
-    }
-
-    @Operation(summary = "Get empty seats", description = "Retrieves the total number of empty seats at the party.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Number of empty seats retrieved successfully")
-    })
-    @GetMapping("/seats_empty")
-    public ResponseEntity<Map<String, Integer>> getEmptySeats() {
-        Map<String, Integer> response = new HashMap<>();
-        response.put("seats_empty", partyTableService.getTotalEmptySeats());
-        return ResponseEntity.ok(response);
     }
 
     private GuestListEntryDto toDto(GuestListEntry guestListEntry) {

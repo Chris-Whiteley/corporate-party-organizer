@@ -75,7 +75,7 @@ public class GuestListControllerIT {
                 .andExpect(jsonPath("$.accompanyingGuests").value(2));
 
         // Perform GET request to check available seats at the tables
-        mockMvc.perform(get("/seats_empty"))
+        mockMvc.perform(get("/party_tables/seats_empty"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.seats_empty").value(13));
     }
@@ -97,7 +97,7 @@ public class GuestListControllerIT {
                 .andExpect(status().isNoContent());
 
         // Perform GET request to check available seats at the tables
-        mockMvc.perform(get("/seats_empty"))
+        mockMvc.perform(get("/party_tables/seats_empty"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.seats_empty").value(18));
     }
@@ -127,7 +127,7 @@ public class GuestListControllerIT {
                 .andExpect(jsonPath("$.timeArrived").isNotEmpty());
 
         // Perform GET request to check available seats at the tables
-        mockMvc.perform(get("/seats_empty"))
+        mockMvc.perform(get("/party_tables/seats_empty"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.seats_empty").value(12));
     }
@@ -135,7 +135,7 @@ public class GuestListControllerIT {
     @Test
     public void getEmptySeats_ShouldReturnOk() throws Exception {
         // Perform the GET request to check available seats at the tables
-        mockMvc.perform(get("/seats_empty"))
+        mockMvc.perform(get("/party_tables/seats_empty"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.seats_empty").value(16));  // Initially 18, now 16 after guests added
     }
@@ -177,11 +177,10 @@ public class GuestListControllerIT {
                 .andExpect(jsonPath("$.timeLeft").isNotEmpty());
     }
 
-
     @Test
     public void getGuestsAtAllTablesShouldReturnOk() throws Exception {
         // Perform the GET request to retrieve guests at all tables
-        mockMvc.perform(get("/guests_at_table"))
+        mockMvc.perform(get("/party_tables/guests_at_table"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tableNumber").value(1))
                 .andExpect(jsonPath("$[0].guests[0]").value("Betty Boop"))

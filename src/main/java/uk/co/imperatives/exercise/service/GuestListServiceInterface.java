@@ -24,8 +24,4 @@ public interface GuestListServiceInterface {
 
     GuestListEntry recordGuestLeft(String guestName) throws GuestNotFoundException;
 
-    List<GuestsAtTable> getGuestsAtAllTables();
-
-    GuestsAtTable getGuestsAtTable(int tableNumber);
-
 }

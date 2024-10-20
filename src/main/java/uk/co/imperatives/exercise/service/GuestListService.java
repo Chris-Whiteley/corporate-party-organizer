@@ -214,54 +214,6 @@ public class GuestListService implements GuestListServiceInterface {
         return guestListEntryRepository.save(existingGuestEntry);
     }
 
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<GuestsAtTable> getGuestsAtAllTables() {
-        Map<Integer, Collection<String>> tableGuestsMap = new HashMap<>();
-
-        guestListEntryRepository.findAll()
-                .forEach(guestListEntry -> {
-                    if (!guestListEntry.hasLeft()) {
-                        var guestsAtTable = tableGuestsMap.computeIfAbsent(guestListEntry.getTableNumber(), k -> new ArrayList<>());
-                        guestsAtTable.add(guestListEntry.getName());
-                    }
-                });
-
-        // Add blank entries for empty tables
-        tableService.getAllTables()
-                .stream()
-                .filter(partyTable -> partyTable.getNoOfSeatsAllocated() == 0)
-                .forEach(partyTable -> {
-                    if (!tableGuestsMap.containsKey(partyTable.getNumber())) {
-                        tableGuestsMap.put(partyTable.getNumber(), Collections.emptyList());
-                    }
-                });
-
-        return tableGuestsMap
-                .entrySet()
-                .stream()
-                .map(entry -> GuestsAtTable.builder().tableNumber(entry.getKey()).guests(entry.getValue()).build())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public GuestsAtTable getGuestsAtTable(int tableNumber) {
-        if (!tableService.tableExists(tableNumber)) {
-            throw new TableNotFoundException("Table with number " + tableNumber + " not found");
-        }
-
-        List<String> guests =
-                StreamSupport.stream(guestListEntryRepository.findAll().spliterator(), false)
-                        .filter(guestListEntry -> guestListEntry.getTableNumber() == tableNumber)
-                        .filter(guestListEntry -> !guestListEntry.hasLeft())
-                        .map(GuestListEntry::getName)
-                        .toList();
-
-        return GuestsAtTable.builder().tableNumber(tableNumber).guests(guests).build();
-    }
-
     // Helper methods
     private void throwNoAvailabilityException(AddGuestRequest request) {
         if (request.hasTable()) {

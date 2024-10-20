@@ -1,5 +1,6 @@
 package uk.co.imperatives.exercise.service;
 
+import uk.co.imperatives.exercise.dto.GuestsAtTable;
 import uk.co.imperatives.exercise.model.PartyTable;
 
 import java.util.List;
@@ -21,8 +22,11 @@ public interface PartyTableServiceInterface {
 
     boolean hasAvailability(int table, int noOfSeats);
 
-    boolean tableExists(int tableNumber);
-
     int getTotalEmptySeats();
+
+    List<GuestsAtTable> getGuestsAtAllTables();
+
+    GuestsAtTable getGuestsAtTable(int tableNumber);
+
 }
 
