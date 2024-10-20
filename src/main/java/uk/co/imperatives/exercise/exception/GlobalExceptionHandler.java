@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoAvailabilityException.class)
-    public ResponseEntity<String> handleTableAlreadyExistsException(NoAvailabilityException e) {
+    public ResponseEntity<String> handleNoAvailabilityException(NoAvailabilityException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
@@ -52,6 +52,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GuestHasLeftException.class)
     public ResponseEntity<String> handleGuestHasLeftException(GuestHasLeftException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 

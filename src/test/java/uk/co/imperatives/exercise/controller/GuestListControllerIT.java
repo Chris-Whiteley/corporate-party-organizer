@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.imperatives.exercise.dto.AddGuestRequestDto;
+import uk.co.imperatives.exercise.dto.GuestArrivalDto;
 import uk.co.imperatives.exercise.service.AddGuestRequest;
 import uk.co.imperatives.exercise.service.GuestListServiceInterface;
 import uk.co.imperatives.exercise.service.PartyTableServiceInterface;
@@ -139,8 +140,6 @@ public class GuestListControllerIT {
                 .andExpect(jsonPath("$.seats_empty").value(16));  // Initially 18, now 16 after guests added
     }
 
-    // New tests based on your request
-
     @Test
     public void updateGuestNameShouldReturnOk() throws Exception {
         // Update "Betty Boop" to "Daffy Duck"
@@ -159,12 +158,25 @@ public class GuestListControllerIT {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Mickey Mouse"));
 
-        // Perform the DELETE request to record guest leaving
-        mockMvc.perform(delete("/guests/Mickey Mouse"))
+        // Then perform PUT request to record guest arrival
+        GuestArrivalDto guestArrivalDto = new GuestArrivalDto();
+        guestArrivalDto.setName("Mickey Mouse");
+        guestArrivalDto.setAccompanyingGuests(2);
+
+        mockMvc.perform(put("/guests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(guestArrivalDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Mickey Mouse"))
+                .andExpect(jsonPath("$.timeArrived").isNotEmpty());
+
+        // Now perform the PATCH request to record guest leaving
+        mockMvc.perform(patch("/guests/Mickey Mouse/leave"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Mickey Mouse"))
                 .andExpect(jsonPath("$.timeLeft").isNotEmpty());
     }
+
 
     @Test
     public void getGuestsAtAllTablesShouldReturnOk() throws Exception {

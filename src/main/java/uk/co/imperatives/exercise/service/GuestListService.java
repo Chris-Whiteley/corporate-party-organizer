@@ -61,7 +61,7 @@ public class GuestListService implements GuestListServiceInterface {
             guestToAddBuilder.tableNumber(tableWithAvailability);
         }
 
-            return guestListEntryRepository.save(guestToAddBuilder.build());
+        return guestListEntryRepository.save(guestToAddBuilder.build());
     }
 
     @Override
@@ -138,6 +138,11 @@ public class GuestListService implements GuestListServiceInterface {
     @Override
     @Transactional
     public GuestListEntry recordGuestArrival(String guestName, int accompanyingGuests) {
+        // Check for negative accompanying guests
+        if (accompanyingGuests < 0) {
+            throw new IllegalArgumentException("Number of accompanying guests cannot be negative");
+        }
+
         Optional<GuestListEntry> existingGuestOpt = guestListEntryRepository.findById(guestName);
 
         // Check if the guest exists
@@ -147,6 +152,10 @@ public class GuestListService implements GuestListServiceInterface {
 
         var existingGuestEntry = existingGuestOpt.get();
 
+        // Note: No check for whether the guest has already arrived.
+        // This allows the number of accompanying guests to be changed even if the guest has already arrived.
+
+        // Handle accompanying guests and table occupancy changes
         if (accompanyingGuests > existingGuestEntry.getAccompanyingGuests()) {
             int extraGuests = accompanyingGuests - existingGuestEntry.getAccompanyingGuests();
 
@@ -160,8 +169,12 @@ public class GuestListService implements GuestListServiceInterface {
             tableService.decreaseOccupancy(existingGuestEntry.getTableNumber(), decreaseInGuests);
         }
 
+        // Update guest entry with accompanying guests and, if not already recorded, the arrival time
         existingGuestEntry.setAccompanyingGuests(accompanyingGuests);
-        existingGuestEntry.recordTimeArrived();
+        if (!existingGuestEntry.hasArrived()) {
+            existingGuestEntry.recordTimeArrived();
+        }
+
         return guestListEntryRepository.save(existingGuestEntry);
     }
 
@@ -183,18 +196,24 @@ public class GuestListService implements GuestListServiceInterface {
             throw new GuestNotFoundException("Guest with name " + guestName + " not found");
         }
 
-
         var existingGuestEntry = existingGuestOpt.get();
 
-        // Check guest has not already been recorded as left
-        if (!existingGuestEntry.hasLeft()) {
-            tableService.increaseOccupancy(existingGuestEntry.getTableNumber(), existingGuestEntry.noOfGuests());
-            existingGuestEntry.recordTimeLeft();
-            return guestListEntryRepository.save(existingGuestEntry);
-        } else {
-            return existingGuestEntry;
+        // Check if guest has not been recorded as arrived yet
+        if (!existingGuestEntry.hasArrived()) {
+            throw new IllegalStateException("Guest with name " + guestName + " has not arrived yet, cannot record as left.");
         }
+
+        // Check if guest has already been recorded as left
+        if (existingGuestEntry.hasLeft()) {
+            throw new IllegalStateException("Guest with name " + guestName + " has already been recorded as left.");
+        }
+
+        // Update the occupancy and record the time left
+        tableService.increaseOccupancy(existingGuestEntry.getTableNumber(), existingGuestEntry.noOfGuests());
+        existingGuestEntry.recordTimeLeft();
+        return guestListEntryRepository.save(existingGuestEntry);
     }
+
 
     @Override
     @Transactional(readOnly = true)

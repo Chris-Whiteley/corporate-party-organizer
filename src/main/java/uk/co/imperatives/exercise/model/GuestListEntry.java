@@ -51,6 +51,10 @@ public class GuestListEntry {
         this.timeLeft = LocalDateTime.now();
     }
 
+    public boolean hasArrived() {
+        return this.timeArrived != null;
+    }
+
     public boolean hasLeft() {
         return this.timeLeft != null;
     }

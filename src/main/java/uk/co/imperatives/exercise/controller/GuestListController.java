@@ -35,7 +35,7 @@ public class GuestListController {
     private final PartyTableServiceInterface partyTableService;
 
     @Operation(summary = "Add a new guest", description = "Registers a new guest and assigns them to a table." +
-    " If Supplied table is 0 the system will attempt to find an available table.")
+            " If Supplied table is 0 the system will attempt to find an available table.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Guest added successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
@@ -86,9 +86,10 @@ public class GuestListController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Record guest arrival", description = "Marks the guest as having arrived.")
+    @Operation(summary = "Record guest arrival", description = "Marks the guest as having arrived, and updates the number of accompanying guests if necessary. The number of accompanying guests must not be negative.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Guest arrival recorded"),
+            @ApiResponse(responseCode = "400", description = "Invalid input: accompanying guests cannot be negative"),
             @ApiResponse(responseCode = "404", description = "Guest not found")
     })
     @PutMapping("/guests")
@@ -97,16 +98,20 @@ public class GuestListController {
         return ResponseEntity.ok(toDto(updatedGuest));
     }
 
-    @Operation(summary = "Record guest leaving", description = "Marks the guest as having left the party.")
+
+    @Operation(summary = "Record guest leaving", description = "Marks the guest as having left the party. A guest must have been recorded as arrived before being marked as left.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Guest leaving recorded"),
-            @ApiResponse(responseCode = "404", description = "Guest not found")
+            @ApiResponse(responseCode = "404", description = "Guest not found"),
+            @ApiResponse(responseCode = "409", description = "Guest has not arrived or has already left")
     })
-    @DeleteMapping("/guests/{guestName}")
-    public ResponseEntity<GuestListEntryDto> recordGuestLeaving(@Parameter(description = "The name of the guest leaving") @PathVariable String guestName) {
+    @PatchMapping("/guests/{guestName}/leave")
+    public ResponseEntity<GuestListEntryDto> recordGuestLeaving(
+            @Parameter(description = "The name of the guest leaving") @PathVariable String guestName) {
         GuestListEntry updatedGuest = guestListService.recordGuestLeft(guestName);
         return ResponseEntity.ok(toDto(updatedGuest));
     }
+
 
     @Operation(summary = "Get guests at all tables", description = "Retrieves a list of all guests at their respective tables.")
     @ApiResponses(value = {

@@ -6,9 +6,10 @@ This is a Spring Boot microservice designed to organise corporate parties by man
 ## Requirements Met
 - Guests can be added to the guest list with or without table assignments.
 - The system ensures guests can only sit at tables with sufficient seating.
-- Arrivals and departures of guests (and their accompanying guests) are handled.
+- Arrivals and departures of guests (and their accompanying guests) are handled, and guest arrival recording is idempotent, allowing the organiser to adjust the number of accompanying guests even if the guest has already arrived.
 - Tracks the number of empty seats in real-time.
 - All requirements are covered by tests.
+- Invalid inputs (e.g., negative accompanying guests, exceeding table capacity) are handled consistently with meaningful error messages.
 
 ## Agile Approach
 
@@ -85,6 +86,7 @@ Note. Table Management was not specified in the Java Exercise's Sample API Guide
 
 **Duplicate Names:**
 - The guest name must be unique.
+- Duplicate Names: Currently, guest names are used as unique identifiers. The system does not allow duplicate names, and any subsequent additions will update the existing guest's information. This may lead to issues with guests having the same name (consider extending the identifier in future versions).
 - The system allows adding a guest more than once by updating the previous entry, enabling the organiser to modify the guest’s table or accompanying guests.
 - The system allows correcting an existing guest's name.
 
@@ -111,8 +113,17 @@ Note. Table Management was not specified in the Java Exercise's Sample API Guide
 ### Additional Considerations:
 - Should the system handle extremely long guest names or names with special characters?
 
-As a guest, I want to be able to arrive at a party with extra friends, so I can join if there is space.
-As an organiser, I want to see how many seats are available, so I can plan the event.
+### User Story
+**As a guest,** I want to be able to arrive at a party with extra friends, so I can join if there is space.
+
+### User Story
+**As an organiser,** I want to allow changes to the number of accompanying guests even after a guest has arrived to accommodate late changes.
+
+
+### Acceptance Criteria:
+- The organiser can update the number of accompanying guests for a guest even after their arrival has been recorded.
+- The system does not throw an error if the guest has already arrived; instead, it updates the accompanying guests.
+
 
 ## Running the Application
 
@@ -171,7 +182,7 @@ Ensure **Docker Engine** is running to support the PostgreSQL database in the de
 
 If you prefer to use the default in-memory H2 database, simply run the following command:
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 ## Accessing the Microservice
